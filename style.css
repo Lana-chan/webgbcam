@@ -1,0 +1,58 @@
+html, body{
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background: url("../bg.png");
+  text-align: center;
+  font: 12px sans-serif;
+}
+
+.centered {
+  text-align: center !important;
+}
+
+.maple-window {
+  margin: 5px;
+  vertical-align: top;
+}
+
+/*#camera {
+	position: fixed;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+}*/
+
+#app-view {
+	height: 100%;
+	width: 100%;
+	image-rendering: optimizeSpeed;             /* Older versions of FF          */
+	image-rendering: -moz-crisp-edges;          /* FF 6.0+                       */
+	image-rendering: -webkit-optimize-contrast; /* Safari                        */
+	image-rendering: -o-crisp-edges;            /* OS X & Windows Opera (12.02+) */
+	image-rendering: pixelated;                 /* Awesome future-browsers       */
+	-ms-interpolation-mode: nearest-neighbor;   /* IE                            */
+}
+
+#camera-stream, #camera-output, #camera-view, .hidden {
+	display: none;
+}
+
+.button {
+	width: 200px;
+	background-color: black;
+	color: white;
+	font-size: 16px;
+	border-radius: 30px;
+	border: none;
+	padding: 15px 20px;
+	text-align: center;
+	box-shadow: 0 5px 10px 0 rgba(0,0,0,0.2);
+	/*position: fixed;
+	bottom: 30px;
+	left: calc(50% - 100px);*/
+}

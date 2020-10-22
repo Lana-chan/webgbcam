@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang=”en”>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>gremlin girl camera</title>
+	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="../css/jul.css">
+</head>
+<body>
+
+	<div id="camera" class="maple-window">
+		<canvas id="app-view"></canvas>
+		<canvas id="camera-view"></canvas>
+		<canvas id="camera-output"></canvas>
+		<video id="camera-stream" autoplay playsinline></video>
+	</div>
+
+	<div class="maple-window centered">
+		<p>made by <a href="https://twitter.com/maplesbian">@maplesbian</a> - inspired by christine love's interstellar selfie station</p>
+
+		<p>if the app above is blank, make sure you have cameras connected and browser camera permissions enabled!</p>
+
+		<p>this app is still very buggy on iOS and Safari, sorry for the inconvenience :(</p>
+
+		<p>if you like the stuff i do, check out <a href="https://maple.pet/">my website</a> or <a href="https://ko-fi.com/squirrel">donate to me on ko-fi</a>!</p>
+
+		<p>ps: you look great today!</p>
+	</div>
+	
+	<div class="hidden">
+		<img src="ui-main.png" id="ui-main" />
+		<img src="ui-settings.png" id="ui-settings" />
+		<img src="ui-capture.png" id="ui-capture" />
+	</div>
+
+	<script src="app.js"></script>
+</body>
+</html>
