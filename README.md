@@ -31,6 +31,9 @@ Selfie Station back in 2014. It helped me a lot with my dysphoria and was the in
 to learning how Bayer dithering works in order to remake her camera app once it was no
 longer available in app stores.
 
+Thanks to [lospec.com](https://lospec.com/palette-list) for making a list of palettes available,
+many of which were used in this project.
+
 ## License
 
 ```
