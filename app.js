@@ -8,7 +8,171 @@
  * ------------------------------------------------------------
  */
 
-import palettes from './palettes.js';
+// 4-color GB palette must be dark to light
+const palettes = [
+  // AYY4 - https://lospec.com/palette-list/ayy4
+  [
+    [0, 48, 59],
+    [255, 119, 119],
+    [255, 206, 150],
+    [241, 242, 218]
+	],
+	/* this one was removed in favour of spacehaze which is very similar
+  // Barbie: The Slasher Movie - https://lospec.com/palette-list/barbie-the-slasher-movie
+  [
+    [0, 0, 0],
+    [110, 31, 177],
+    [204, 51, 133],
+    [248, 251, 243]
+	],*/
+	// SpaceHaze - https://lospec.com/palette-list/spacehaze
+	[
+		[11, 6, 48],
+		[107, 31, 177],
+		[204, 52, 149],
+		[248, 227, 196]
+	],
+  // CRTGB - https://lospec.com/palette-list/crtgb
+  [
+    [6, 6, 1],
+    [11, 62, 8],
+    [72, 154, 13],
+    [218, 242, 34]
+  ],
+  // Amber CRTGB - https://lospec.com/palette-list/amber-crtgb
+  [
+    [13, 4, 5],
+    [94, 18, 16],
+    [211, 86, 0],
+    [254, 208, 24]
+  ],
+  // Kirby (SGB) - https://lospec.com/palette-list/kirby-sgb
+  [
+    [44, 44, 150],
+    [119, 51, 231],
+    [231, 134, 134],
+    [247, 190, 247]
+  ],
+  // CherryMelon - https://lospec.com/palette-list/cherrymelon
+  [
+    [1, 40, 36],
+    [38, 89, 53],
+    [255, 77, 109],
+    [252, 222, 234]
+  ],
+  // Pumpkin GB - https://lospec.com/palette-list/pumpkin-gb
+  [
+    [20, 43, 35],
+    [25, 105, 44],
+    [244, 110, 22],
+    [247, 219, 126]
+  ],
+  // Purpledawn - https://lospec.com/palette-list/purpledawn
+  [
+    [0, 27, 46],
+    [45, 117, 126],
+    [154, 123, 188],
+    [238, 253, 237]
+  ],
+  // Royal4 - https://lospec.com/palette-list/royal4
+  [
+    [82, 18, 150],
+    [138, 31, 172],
+    [212, 134, 74],
+    [235, 219, 94]
+  ],
+  // Grand Dad 4 - https://lospec.com/palette-list/grand-dad-4
+  [
+    [76, 28, 45],
+    [210, 60, 78],
+    [95, 177, 245],
+    [234, 245, 250]
+  ],
+  // Mural GB - https://lospec.com/palette-list/mural-gb
+  [
+    [10, 22, 78],
+    [162, 81, 48],
+    [206, 173, 107],
+    [250, 253, 255]
+  ],
+  // Ocean GB - https://lospec.com/palette-list/ocean-gb
+  [
+    [28, 21, 48],
+    [42, 48, 139],
+    [54, 125, 1216],
+    [141, 226, 246]
+	],
+	// Alleyway - ISS
+	[
+		[66, 66, 66],
+		[123, 123, 206],
+		[255, 107, 255],
+		[255, 214, 0]
+	],
+	// Pocket - ISS
+	[
+		[108, 108, 78],
+		[142, 139, 97],
+		[195, 196, 165],
+		[227, 230, 201]
+	],
+  // Kadabura4 - https://lospec.com/palette-list/kadabura4
+  [
+    [0, 0, 0],
+    [87, 87, 87],
+    [219, 0, 12],
+    [255, 255, 255]
+  ],
+  // Virtual - ISS
+  [
+    [2, 0, 0],
+    [65, 0, 0],
+    [127, 0, 0],
+    [255, 0, 0]
+  ],
+  // Love! Love! - ISS
+  [
+    [176, 16, 48],
+    [255, 96, 176],
+    [255, 184, 232],
+    [255, 255, 255]
+  ],
+  // Metroid II (SGB) - https://lospec.com/palette-list/metroid-ii-sgb
+  [
+    [44, 23, 0],
+    [4, 126, 96],
+    [182, 37, 88],
+    [174, 223, 30]
+  ],
+  // Micro 86 - https://lospec.com/palette-list/micro-86
+  [
+    [38, 0, 14],
+    [255, 0, 0],
+    [255, 123, 48],
+    [255, 217, 178]
+  ],
+  // Vivid 2Bit Scream - https://lospec.com/palette-list/vivid-2bit-scream
+  [
+    [86, 29, 23],
+    [92, 79, 163],
+    [116, 175, 52],
+    [202, 245, 50]
+	],
+	// Pastel GBC/SGB - submitted by synth___ruiner
+	[ 
+		[4,2,4],
+		[156,146,244],
+		[236,138,140],
+		[252,250,172]
+	],
+	// trans flag - by mavica
+	[
+		[32, 32, 32],
+		[91, 207, 250],
+		[245, 171, 185],
+		[255, 255, 255]
+	]
+];
 
 const cameraStream = document.querySelector("#camera-stream"),
 			cameraView = document.querySelector("#camera-view"),
@@ -20,21 +184,26 @@ const cameraStream = document.querySelector("#camera-stream"),
 			uiSettings = document.querySelector("#ui-settings");
 var amountOfCameras = 0;
 var currentFacingMode = 'user';
-var reportedFacingMode;
 var appScale;
 var frameDrawing;
 
 // global settings for gbcamera
-var cameraWidth = 128,
-		cameraHeight = 112,
-		cameraDither = 0.6,
-		//cameraBrightness = 0.0,
-		cameraContrast = 3,
-		cameraGamma = 3,
-		renderWidth = 160,
+var renderWidth = 160,
 		renderHeight = 144,
 		currentPalette = 0,
 		currentUI = uiMain;
+
+var cameraVars = {
+	width: 128,
+	height: 112,
+	dither: 0.6,
+	contrast: 3,
+	gamma: 3,
+	xOffset: 0,
+	yOffset: 0,
+	xScale: 1,
+	yScale: 1
+};
 
 const sliderGamma = [
 	2.5,
@@ -111,8 +280,8 @@ function savePicture() {
 	// i love javascript
 	let dateString = now.getDate() + "-" + (now.getMonth()+1) + "-"+ now.getFullYear() + " " + now.getHours() + " " + now.getMinutes() + " " + now.getSeconds();
 
-	cameraOutput.width = cameraWidth * scale;
-	cameraOutput.height = cameraHeight * scale;
+	cameraOutput.width = cameraVars.width * scale;
+	cameraOutput.height = cameraVars.height * scale;
 	let ctx = cameraOutput.getContext("2d");
 	ctx.imageSmoothingEnabled = false;
 	ctx.drawImage(cameraView, 0,0, cameraOutput.width, cameraOutput.height);
@@ -218,7 +387,7 @@ Filters.gbcamera = function(pixels, ditherFactor) {
 			let c = r*0.3 + g*0.59 + b*0.11;
 
 			// apply levels
-			c = clampNumber(applyLevels(c, 0, sliderContrast[cameraContrast], sliderGamma[cameraGamma]), 0, 255);
+			c = clampNumber(applyLevels(c, 0, sliderContrast[cameraVars.contrast], sliderGamma[cameraVars.gamma]), 0, 255);
 
 			// apply bayer
 			c = clampNumber(c + ((bayer - 32) * ditherFactor), 0, 255);
@@ -312,15 +481,19 @@ document.addEventListener('DOMContentLoaded', function (event) {
 			})
 			.catch(function (error) {
 				//https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
-				if (error === 'PermissionDeniedError') {
-					alert('Permission denied. Please refresh and give permission.');
+				if (error.name === 'NotAllowedError') {
+					alert('camera permission denied, please refresh and allow camera capture!');
+				} else if (error.name === 'NotFoundError') {
+					alert('no cameras found! make sure your webcam is plugged in and enabled!');
+				} else {
+					alert('unspecified camera error! make sure camera permissions are enabled!');
 				}
 
 				console.error('getUserMedia() error: ', error);
 			});
 	} else {
 		alert(
-			'Mobile camera is not supported by browser, or there is no camera detected/connected',
+			'it seems your browser does not support camera capture! :(',
 		);
 	}
 });
@@ -338,8 +511,8 @@ function initCameraUI() {
 	cameraDiv.style.height = appScale * renderHeight + "px";
 
 	// canvas sizes
-	cameraView.width = cameraWidth;
-	cameraView.height = cameraHeight;
+	cameraView.width = cameraVars.width;
+	cameraView.height = cameraVars.height;
 	appView.width = renderWidth;
 	appView.height = renderHeight;
 
@@ -382,13 +555,13 @@ function initCameraUI() {
 					currentUI = uiMain;
 				}
 			} else if(isInside(mousePos, buttons.contrastLeft)) {
-				if(cameraContrast > 0) cameraContrast--;
+				if(cameraVars.contrast > 0) cameraVars.contrast--;
 			} else if(isInside(mousePos, buttons.contrastRight)) {
-				if(cameraContrast < 6) cameraContrast++;
+				if(cameraVars.contrast < 6) cameraVars.contrast++;
 			} else if(isInside(mousePos, buttons.brightnessLeft)) {
-				if(cameraGamma > 0) cameraGamma--;
+				if(cameraVars.gamma > 0) cameraVars.gamma--;
 			} else if(isInside(mousePos, buttons.brightnessRight)) {
-				if(cameraGamma < 6) cameraGamma++;
+				if(cameraVars.gamma < 6) cameraVars.gamma++;
 			} else if(isInside(mousePos, buttons.paletteLeft)) {
 				currentPalette--;
 				if(currentPalette < 0) currentPalette = palettes.length-1;
@@ -433,11 +606,29 @@ function initCameraStream() {
 		const settings = track.getSettings();
 		let str = JSON.stringify(settings, null, 4);
 		console.log('settings ' + str);
-		reportedFacingMode = settings.facingMode;
-		
+
+		// calculate scale and offset to render camera stream to camera view canvas
+		if(settings.width >= settings.height) {
+			// horizontal
+			cameraVars.yScale = cameraVars.height;
+			cameraVars.xScale = (cameraVars.height / settings.height) * settings.width;
+			cameraVars.yOffset = 0;
+			cameraVars.xOffset = -((cameraVars.xScale - cameraVars.width) / 2);
+		} else {
+			//vertical
+			cameraVars.xScale = cameraVars.width;
+			cameraVars.yScale = (cameraVars.width / settings.width) * settings.height;
+			cameraVars.xOffset = 0;
+			cameraVars.yOffset = -((cameraVars.yScale - cameraVars.height) / 2);
+		}
+
 		// canvas starts flipped for user facing camera
 		cameraView.getContext('2d').setTransform(1, 0, 0, 1, 0, 0);
-		if(reportedFacingMode != 'environment') cameraView.getContext('2d').scale(-1,1);
+		if(settings.facingMode != 'environment') {
+			cameraView.getContext('2d').scale(-1,1);
+			cameraVars.xOffset *= -1;
+			cameraVars.xScale *= -1;
+		}
 
 		clearInterval(frameDrawing)
 		frameDrawing = setInterval(drawFrame, 100);
@@ -449,44 +640,22 @@ function initCameraStream() {
 }
 
 function drawFrame() {
-	let xOffset, yOffset, xScale, yScale;
-
-	// calculate scale and offset to render camera stream to camera view canvas
-	if(cameraStream.videoWidth >= cameraStream.videoHeight) {
-		// horizontal
-		yScale = cameraHeight;
-		xScale = (cameraHeight / cameraStream.videoHeight) * cameraStream.videoWidth;
-		yOffset = 0;
-		xOffset = -((xScale - cameraWidth) / 2);
-	} else {
-		//vertical
-		xScale = cameraWidth;
-		yScale = (cameraWidth / cameraStream.videoWidth) * cameraStream.videoHeight;
-		xOffset = 0;
-		yOffset = -((yScale - cameraHeight) / 2);
-	}
-
 	let camctx = cameraView.getContext('2d');
-
-	if(reportedFacingMode != 'environment') {
-		xOffset *= -1;
-		xScale *= -1;
-	}
-	camctx.drawImage(cameraStream, xOffset, yOffset, xScale, yScale);
+	camctx.drawImage(cameraStream, cameraVars.xOffset, cameraVars.yOffset, cameraVars.xScale, cameraVars.yScale);
 	
-	Filters.filterImage(Filters.gbcamera, cameraView, [cameraDither]);
+	Filters.filterImage(Filters.gbcamera, cameraView, [cameraVars.dither]);
 	
 	let ctx = appView.getContext("2d");
 	ctx.drawImage(cameraView, 16, 16);
 	ctx.drawImage(currentUI, 0, 0);
 
 	if(currentUI === uiSettings) {
-		// update settings values
+		// update settings values	
 		ctx.fillStyle = "rgb(192,192,192)"
-		for(let i = 1; i <= cameraContrast; i++) {
+		for(let i = 1; i <= cameraVars.contrast; i++) {
 			ctx.fillRect(42, 22 - (i*3), 4, 2);
 		}
-		for(let i = 1; i <= cameraGamma; i++) {
+		for(let i = 1; i <= cameraVars.gamma; i++) {
 			ctx.fillRect(97, 22 - (i*3), 4, 2);
 		}
 	}
