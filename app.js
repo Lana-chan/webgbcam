@@ -8,13 +8,13 @@
  * ------------------------------------------------------------
  */
 
+import palettes from './palettes.js';
+
 const cameraStream = document.querySelector("#camera-stream"),
 			cameraView = document.querySelector("#camera-view"),
 			cameraOutput = document.querySelector("#camera-output"),
 			cameraDiv = document.querySelector("#camera"),
 			appView = document.querySelector("#app-view"),
-			/*buttonSwitch = document.querySelector("#camera-switch"),
-			buttonShutter = document.querySelector("#camera-shutter"),*/
 			uiMain = document.querySelector("#ui-main"),
 			uiCapture = document.querySelector("#ui-capture"),
 			uiSettings = document.querySelector("#ui-settings");
@@ -47,13 +47,13 @@ const sliderGamma = [
 ];
 
 const sliderContrast = [
-	0.5,
-	0.7,
-	1.0,
+	0.6,
+	0.9,
+	1.2,
 	1.5,
-	1.7,
-	1.9,
-	2.0
+	1.8,
+	2.1,
+	2.4
 ];
 
 // 8 x 8 Bayer Matrix
@@ -66,150 +66,6 @@ const bayer8 = [
 	[34,18,46,30,33,17,45,29],
 	[10,58,6,54,9,57,5,53],
 	[42,26,38,22,41,25,37,21]
-];
-
-// 4-color GB palette must be dark to light
-const palettes = [
-  // AYY4
-  [
-    [0, 48, 59],
-    [255, 119, 119],
-    [255, 206, 150],
-    [241, 242, 218]
-  ],
-  // Barbie: The Slasher Movie
-  [
-    [0, 0, 0],
-    [110, 31, 177],
-    [204, 51, 133],
-    [248, 251, 243]
-  ],
-  // CRTGB
-  [
-    [6, 6, 1],
-    [11, 62, 8],
-    [72, 154, 13],
-    [218, 242, 34]
-  ],
-  // Amber CRTGB
-  [
-    [13, 4, 5],
-    [94, 18, 16],
-    [211, 86, 0],
-    [254, 208, 24]
-  ],
-  // Kirby (SGB)
-  [
-    [44, 44, 150],
-    [119, 51, 231],
-    [231, 134, 134],
-    [247, 190, 247]
-  ],
-  // CherryMelon
-  [
-    [1, 40, 36],
-    [38, 89, 53],
-    [255, 77, 109],
-    [252, 222, 234]
-  ],
-  // Pumpkin GB
-  [
-    [20, 43, 35],
-    [25, 105, 44],
-    [244, 110, 22],
-    [247, 219, 126]
-  ],
-  // Purpledawn
-  [
-    [0, 27, 46],
-    [45, 117, 126],
-    [154, 123, 188],
-    [238, 253, 237]
-  ],
-  // Royal4
-  [
-    [82, 18, 150],
-    [138, 31, 172],
-    [212, 134, 74],
-    [235, 219, 94]
-  ],
-  // Grand Dad 4
-  [
-    [76, 28, 45],
-    [210, 60, 78],
-    [95, 177, 245],
-    [234, 245, 250]
-  ],
-  // Mural GB
-  [
-    [10, 22, 78],
-    [162, 81, 48],
-    [206, 173, 107],
-    [250, 253, 255]
-  ],
-  // Ocean GB
-  [
-    [28, 21, 48],
-    [42, 48, 139],
-    [54, 125, 1216],
-    [141, 226, 246]
-	],
-	// purple and yellow from ISS
-	[
-		[66, 66, 66],
-		[123, 123, 206],
-		[255, 107, 255],
-		[255, 214, 0]
-	],
-	// subdued gb colors
-	[
-		[108, 108, 78],
-		[142, 139, 97],
-		[195, 196, 165],
-		[227, 230, 201]
-	],
-  // Kadabur4
-  [
-    [0, 0, 0],
-    [87, 87, 87],
-    [219, 0, 12],
-    [255, 255, 255]
-  ],
-  // ISS VB
-  [
-    [2, 0, 0],
-    [65, 0, 0],
-    [127, 0, 0],
-    [255, 0, 0]
-  ],
-  // ISS Strawberry
-  [
-    [176, 16, 48],
-    [255, 96, 176],
-    [255, 184, 232],
-    [255, 255, 255]
-  ],
-  // Metroid II (SGB)
-  [
-    [44, 23, 0],
-    [4, 126, 96],
-    [182, 37, 88],
-    [174, 223, 30]
-  ],
-  // Micro 86
-  [
-    [38, 0, 14],
-    [255, 0, 0],
-    [255, 123, 48],
-    [255, 217, 178]
-  ],
-  // Vivid 2Bit Scream
-  [
-    [86, 29, 23],
-    [92, 79, 163],
-    [116, 175, 52],
-    [202, 245, 50]
-  ]
 ];
 
 const clampNumber = (num, a, b) => Math.min(Math.max(num, a), b);
@@ -330,7 +186,7 @@ function applyLevels(value, brightness, contrast, gamma) {
 	return Math.pow(clampNumber(newValue, 0, 1), gamma) * 255;
 }
 
-Filters = {};
+var Filters = {};
 Filters.getPixels = function(c) {
 	return c.getContext('2d').getImageData(0,0,c.width,c.height);
 };
@@ -384,8 +240,9 @@ Filters.paletteSwap = function(pixels, palette) {
 	let d = pixels.data;
 
 	for (let i = 0; i < d.length; i += 4) {
-		c = clampNumber(Math.floor(d[i] / 64), 0, 3);
+		let c = clampNumber(Math.floor(d[i] / 64), 0, 3);
 		
+		let r,g,b;
 		[r, g, b] = palette[c];
 
 		d[i] = r;
@@ -486,21 +343,6 @@ function initCameraUI() {
 	appView.width = renderWidth;
 	appView.height = renderHeight;
 
-	// https://developer.mozilla.org/nl/docs/Web/HTML/Element/button
-	// https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques/Using_the_button_role
-
-	// -- switch camera part
-	/*if (amountOfCameras > 1) {
-		buttonSwitch.style.display = 'block';
-
-		buttonSwitch.addEventListener('click', 
-	}*/
-
-	// save picture to disk
-	/*buttonShutter.addEventListener('click', function() {
-
-	});*/
-
 	// handle canvas app clicks
 	appView.addEventListener('click', function(e) {
     var mousePos = getMousePos(appView, e);
@@ -574,8 +416,6 @@ function initCameraStream() {
 		video: {
 			width: { ideal: 640 },
 			height: { ideal: 480 },
-			//width: { min: 1024, ideal: window.innerWidth, max: 1920 },
-			//height: { min: 776, ideal: window.innerHeight, max: 1080 },
 			facingMode: currentFacingMode,
 		},
 	};
@@ -589,17 +429,9 @@ function initCameraStream() {
 		window.stream = stream; // make stream available to browser console
 		cameraStream.srcObject = stream;
 
-		/*if (constraints.video.facingMode) {
-			if (constraints.video.facingMode === 'environment') {
-				buttonSwitch.setAttribute('aria-pressed', true);
-			} else {
-				buttonSwitch.setAttribute('aria-pressed', false);
-			}
-		}*/
-
 		const track = window.stream.getVideoTracks()[0];
 		const settings = track.getSettings();
-		str = JSON.stringify(settings, null, 4);
+		let str = JSON.stringify(settings, null, 4);
 		console.log('settings ' + str);
 		reportedFacingMode = settings.facingMode;
 		
