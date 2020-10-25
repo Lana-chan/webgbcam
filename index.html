@@ -4,9 +4,9 @@
 	<meta charset="utf-8">
 	<meta http-equiv="x-ua-compatible" content="ie=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>gremlin girl camera</title>
+	<title>webgbcam</title>
 	<link rel="stylesheet" href="style.css">
-	<link rel="stylesheet" href="../css/jul.css">
+	<link rel="manifest" href="manifest.webmanifest">
 
 	<meta property="og:title" content="webgbcam">
 	<meta property="og:description" content="gameboy camera-like experience in your browser!">
@@ -43,5 +43,18 @@
 	</div>
 
 	<script src="app.js"></script>
+	<script>
+	if('serviceWorker' in navigator) {
+		navigator.serviceWorker
+						.register('sw.js', {scope: './'})
+						.then(function(registration) {
+							// Registration was successful
+							console.log('ServiceWorker registration successful with scope: ', registration.scope);
+						}, function(err) {
+							// registration failed :(
+							console.log('ServiceWorker registration failed: ', err);
+						});
+	}
+	</script>
 </body>
 </html>
