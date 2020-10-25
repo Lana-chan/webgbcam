@@ -186,6 +186,7 @@ var amountOfCameras = 0;
 var currentFacingMode = 'user';
 var appScale;
 var frameDrawing;
+var windowResizing;
 
 // global settings for gbcamera
 var renderWidth = 160,
@@ -238,6 +239,21 @@ const bayer8 = [
 ];
 
 const clampNumber = (num, a, b) => Math.min(Math.max(num, a), b);
+
+// function to check if phone is portrait oriented
+function screenIsPortrait() {
+	try {
+		let orientation = (screen.orientation || {}).type || screen.mozOrientation || screen.msOrientation;
+		if(orientation != undefined) {
+			if(orientation.includes('portrait')) return true;
+		} else if(window.orientation != undefined) {
+			if(window.orientation == 0) return true;
+		}
+		return false;
+	} catch(e) {
+		return false;
+	}
+}
 
 //Function to get the mouse position
 function getMousePos(canvas, event) {
@@ -498,6 +514,16 @@ document.addEventListener('DOMContentLoaded', function (event) {
 	}
 });
 
+function resizedw(){
+	initCameraStream();
+	initCameraUI();
+}
+
+window.onresize = function() {
+	clearTimeout(windowResizing);
+	windowResizing = setTimeout(resizedw, 500);
+};
+
 function initCameraUI() {
 	// figure out max integer render scale for window
 	if(window.innerWidth >= window.innerHeight) {
@@ -603,9 +629,15 @@ function initCameraStream() {
 		cameraStream.srcObject = stream;
 
 		const track = window.stream.getVideoTracks()[0];
-		const settings = track.getSettings();
+		let settings = track.getSettings();
 		let str = JSON.stringify(settings, null, 4);
 		console.log('settings ' + str);
+
+		if(screenIsPortrait()) {
+			let width = settings.width;
+			settings.width = settings.height;
+			settings.height = width;
+		}
 
 		// calculate scale and offset to render camera stream to camera view canvas
 		if(settings.width >= settings.height) {
