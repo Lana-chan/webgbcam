@@ -1,7 +1,7 @@
 {
   "background_color": "#99ccff",
   "description": "A web-based camera filter that emulates the look of the Game Boy Camera.",
-  "display": "fullscreen",
+  "display": "standalone",
   "icons": [
     {
       "src": "icon.png",
