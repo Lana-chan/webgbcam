@@ -515,7 +515,7 @@ document.addEventListener('DOMContentLoaded', function (event) {
 
 function restartCamera() {
 	setTimeout(function() {
-		initCameraUI();
+		initAppScaling();
 		initCameraDrawing();
 	}, 300);
 }
@@ -524,22 +524,7 @@ window.onorientationchange = restartCamera;
 window.onresize = restartCamera;
 
 function initCameraUI() {
-	// figure out max integer render scale for window
-	if(window.innerWidth >= window.innerHeight) {
-		// horizontal
-		appScale = Math.floor(window.innerHeight / renderHeight);
-	} else {
-		// vertical
-		appScale = Math.floor(window.innerWidth / renderWidth);
-	}
-	cameraDiv.style.width = appScale * renderWidth + "px";
-	cameraDiv.style.height = appScale * renderHeight + "px";
-
-	// canvas sizes
-	cameraView.width = cameraVars.width;
-	cameraView.height = cameraVars.height;
-	appView.width = renderWidth;
-	appView.height = renderHeight;
+	initAppScaling();
 
 	// handle canvas app clicks
 	appView.addEventListener('click', function(e) {
@@ -597,6 +582,25 @@ function initCameraUI() {
 		}
     
 	}, false);
+}
+
+function initAppScaling() {
+	// figure out max integer render scale for window
+	if(window.innerWidth >= window.innerHeight) {
+		// horizontal
+		appScale = Math.floor(window.innerHeight / renderHeight);
+	} else {
+		// vertical
+		appScale = Math.floor(window.innerWidth / renderWidth);
+	}
+	cameraDiv.style.width = appScale * renderWidth + "px";
+	cameraDiv.style.height = appScale * renderHeight + "px";
+
+	// canvas sizes
+	cameraView.width = cameraVars.width;
+	cameraView.height = cameraVars.height;
+	appView.width = renderWidth;
+	appView.height = renderHeight;
 }
 
 // https://github.com/webrtc/samples/blob/gh-pages/src/content/devices/input-output/js/main.js
