@@ -186,7 +186,6 @@ var amountOfCameras = 0;
 var currentFacingMode = 'user';
 var appScale;
 var frameDrawing;
-var windowResizing;
 
 // global settings for gbcamera
 var renderWidth = 160,
@@ -514,15 +513,15 @@ document.addEventListener('DOMContentLoaded', function (event) {
 	}
 });
 
-function resizedw(){
-	initCameraStream();
-	initCameraUI();
+function restartCamera() {
+	setTimeout(function() {
+		initCameraUI();
+		initCameraDrawing();
+	}, 300);
 }
 
-window.onresize = function() {
-	clearTimeout(windowResizing);
-	windowResizing = setTimeout(resizedw, 500);
-};
+window.onorientationchange = restartCamera;
+window.onresize = restartCamera;
 
 function initCameraUI() {
 	// figure out max integer render scale for window
@@ -628,47 +627,45 @@ function initCameraStream() {
 		window.stream = stream; // make stream available to browser console
 		cameraStream.srcObject = stream;
 
-		const track = window.stream.getVideoTracks()[0];
-		let settings = track.getSettings();
-		let str = JSON.stringify(settings, null, 4);
-		console.log('settings ' + str);
-
-		if(screenIsPortrait()) {
-			let width = settings.width;
-			settings.width = settings.height;
-			settings.height = width;
-		}
-
-		// calculate scale and offset to render camera stream to camera view canvas
-		if(settings.width >= settings.height) {
-			// horizontal
-			cameraVars.yScale = cameraVars.height;
-			cameraVars.xScale = (cameraVars.height / settings.height) * settings.width;
-			cameraVars.yOffset = 0;
-			cameraVars.xOffset = -((cameraVars.xScale - cameraVars.width) / 2);
-		} else {
-			//vertical
-			cameraVars.xScale = cameraVars.width;
-			cameraVars.yScale = (cameraVars.width / settings.width) * settings.height;
-			cameraVars.xOffset = 0;
-			cameraVars.yOffset = -((cameraVars.yScale - cameraVars.height) / 2);
-		}
-
-		// canvas starts flipped for user facing camera
-		cameraView.getContext('2d').setTransform(1, 0, 0, 1, 0, 0);
-		if(settings.facingMode != 'environment') {
-			cameraView.getContext('2d').scale(-1,1);
-			cameraVars.xOffset *= -1;
-			cameraVars.xScale *= -1;
-		}
-
-		clearInterval(frameDrawing)
-		frameDrawing = setInterval(drawFrame, 100);
+		setTimeout(initCameraDrawing, 500);
 	}
 
 	function handleError(error) {
 		console.error('getUserMedia() error: ', error);
 	}
+}
+
+function initCameraDrawing() {
+	const track = window.stream.getVideoTracks()[0];
+	let settings = track.getSettings();
+	let str = JSON.stringify(settings, null, 4);
+	console.log('settings ' + str);
+
+	// calculate scale and offset to render camera stream to camera view canvas
+	if(cameraStream.videoWidth >= cameraStream.videoHeight) {
+		// horizontal
+		cameraVars.yScale = cameraVars.height;
+		cameraVars.xScale = (cameraVars.height / cameraStream.videoHeight) * cameraStream.videoWidth;
+		cameraVars.yOffset = 0;
+		cameraVars.xOffset = -((cameraVars.xScale - cameraVars.width) / 2);
+	} else {
+		//vertical
+		cameraVars.xScale = cameraVars.width;
+		cameraVars.yScale = (cameraVars.width / cameraStream.videoWidth) * cameraStream.videoHeight;
+		cameraVars.xOffset = 0;
+		cameraVars.yOffset = -((cameraVars.yScale - cameraVars.height) / 2);
+	}
+
+	// canvas starts flipped for user facing camera
+	cameraView.getContext('2d').setTransform(1, 0, 0, 1, 0, 0);
+	if(settings.facingMode != 'environment') {
+		cameraView.getContext('2d').scale(-1,1);
+		cameraVars.xOffset *= -1;
+		cameraVars.xScale *= -1;
+	}
+
+	clearInterval(frameDrawing)
+	frameDrawing = setInterval(drawFrame, 100);
 }
 
 function drawFrame() {
