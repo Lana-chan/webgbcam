@@ -189,7 +189,8 @@ const cameraStream = document.querySelector("#camera-stream"),
 			uiMain = document.querySelector("#ui-main"),
 			uiCapture = document.querySelector("#ui-capture"),
 			uiSettings = document.querySelector("#ui-settings"),
-			uiHidden = document.querySelector("#ui-hidden");
+			uiHidden = document.querySelector("#ui-hidden"),
+			uiTimer = document.querySelector("#ui-timer");
 var amountOfCameras = 0;
 var currentFacingMode = 'user';
 var appScale;
@@ -380,6 +381,12 @@ var buttons = {
 		y:0,
 		width:15,
 		height:15
+	},
+	timer: {
+		x:33,
+		y:131,
+		width:13,
+		height:13
 	}
 };
 
@@ -543,6 +550,11 @@ function restartCamera() {
 window.onorientationchange = restartCamera;
 window.onresize = restartCamera;
 
+function captureImage() {
+	cameraStream.pause();
+	currentUI = uiCapture;
+}
+
 function initCameraUI() {
 	initAppScaling();
 
@@ -554,8 +566,7 @@ function initCameraUI() {
 		if(currentUI === uiMain) {
 			if(isInside(mousePos, buttons.bottomLeft) || isInside(mousePos, buttons.screenHotspot)) {
 				// shutter
-				cameraStream.pause();
-				currentUI = uiCapture;
+				captureImage();
 			} else if(isInside(mousePos, buttons.bottomRight)) {
 				// switch camera
 				switchCameras();
@@ -565,6 +576,10 @@ function initCameraUI() {
 			} else if(isInside(mousePos, buttons.hideUI)) {
 				// hide UI buttons
 				currentUI = uiHidden;
+			} else if(isInside(mousePos, buttons.timer)) {
+				// change UI to timer and trigger 3s delay to capture
+				currentUI = uiTimer;
+				setTimeout(captureImage, 3000);
 			}
 		} else if(currentUI === uiCapture) {
 			if(isInside(mousePos, buttons.bottomLeft)) {
