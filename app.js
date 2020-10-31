@@ -188,7 +188,8 @@ const cameraStream = document.querySelector("#camera-stream"),
 			appView = document.querySelector("#app-view"),
 			uiMain = document.querySelector("#ui-main"),
 			uiCapture = document.querySelector("#ui-capture"),
-			uiSettings = document.querySelector("#ui-settings");
+			uiSettings = document.querySelector("#ui-settings"),
+			uiHidden = document.querySelector("#ui-hidden");
 var amountOfCameras = 0;
 var currentFacingMode = 'user';
 var appScale;
@@ -373,6 +374,12 @@ var buttons = {
 		y:31,
 		width:98,
 		height:82
+	},
+	hideUI: {
+		x:145,
+		y:0,
+		width:15,
+		height:15
 	}
 };
 
@@ -555,7 +562,10 @@ function initCameraUI() {
 			} else if(isInside(mousePos, buttons.topLeft)) {
 				// go to settings
 				currentUI = uiSettings;
-			} 
+			} else if(isInside(mousePos, buttons.hideUI)) {
+				// hide UI buttons
+				currentUI = uiHidden;
+			}
 		} else if(currentUI === uiCapture) {
 			if(isInside(mousePos, buttons.bottomLeft)) {
 				// return
@@ -591,6 +601,11 @@ function initCameraUI() {
 			} else if(isInside(mousePos, buttons.paletteRight)) {
 				currentPalette++;
 				if(currentPalette >= palettes.length) currentPalette = 0;
+			}
+		} else if(currentUI === uiHidden) {
+			if(isInside(mousePos, buttons.hideUI)) {
+				// go back to main
+				currentUI = uiMain;
 			}
 		}
     

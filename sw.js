@@ -12,7 +12,8 @@ self.addEventListener('install', function(e) {
        'mac-frame.png',
        'ui-capture.png',
        'ui-settings.png',
-       'ui-main.png'
+       'ui-main.png',
+       'ui-hidden.png'
      ]);
    })
  );
