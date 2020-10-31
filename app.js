@@ -368,6 +368,12 @@ var buttons = {
 		width:15,
 		height:13
 	},
+	screenHotspot: {
+		x:31,
+		y:31,
+		width:98,
+		height:82
+	}
 };
 
 function applyLevels(value, brightness, contrast, gamma) {
@@ -539,7 +545,7 @@ function initCameraUI() {
 
 		// buttons in main screen
 		if(currentUI === uiMain) {
-			if(isInside(mousePos, buttons.bottomLeft)) {
+			if(isInside(mousePos, buttons.bottomLeft) || isInside(mousePos, buttons.screenHotspot)) {
 				// shutter
 				cameraStream.pause();
 				currentUI = uiCapture;
