@@ -704,6 +704,9 @@ function initCameraStream() {
 }
 
 function initCameraDrawing() {
+	// if cameraStream has vertical or horizontal resolution of 0 then it's not initialized, we retry until the browser decides to properly work
+	if (cameraStream.videoHeight == 0) setTimeout(restartCamera, 500);
+
 	const track = window.stream.getVideoTracks()[0];
 	let settings = track.getSettings();
 	let str = JSON.stringify(settings, null, 4);
