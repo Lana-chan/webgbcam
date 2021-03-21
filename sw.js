@@ -1,4 +1,4 @@
-const cacheName = 'webgbcam-v2'
+const cacheName = 'webgbcam-v3'
 
 self.addEventListener('install', function(e) {
  e.waitUntil(
@@ -14,7 +14,10 @@ self.addEventListener('install', function(e) {
        'ui-settings.png',
        'ui-main.png',
        'ui-hidden.png',
-       'ui-timer.png'
+       'ui-timer.png',
+       'ui-record.png',
+       'gifjs/gif.js',
+       'gifjs/gif.worker.js'
      ]);
    })
  );

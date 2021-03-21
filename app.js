@@ -211,11 +211,17 @@ const cameraStream = document.querySelector("#camera-stream"),
 			uiCapture = document.querySelector("#ui-capture"),
 			uiSettings = document.querySelector("#ui-settings"),
 			uiHidden = document.querySelector("#ui-hidden"),
-			uiTimer = document.querySelector("#ui-timer");
+			uiTimer = document.querySelector("#ui-timer"),
+			uiRecord = document.querySelector("#ui-record");
 var amountOfCameras = 0;
 var currentFacingMode = 'user';
 var appScale;
 var frameDrawing;
+const gifLength = 50;
+const outputScale = 5;
+var gifRecording,
+		gifEncoder,
+		gifFrames;
 
 // global settings for gbcamera
 var renderWidth = 160,
@@ -319,16 +325,11 @@ function download(filename, content) {
 }
 
 function savePicture() {
-	let scale = 5;
-
 	let now = new Date();
 	// i love javascript
 	let dateString = now.getDate() + "-" + (now.getMonth()+1) + "-"+ now.getFullYear() + " " + now.getHours() + " " + now.getMinutes() + " " + now.getSeconds();
 
-	cameraOutput.width = cameraVars.width * scale;
-	cameraOutput.height = cameraVars.height * scale;
 	let ctx = cameraOutput.getContext("2d");
-	ctx.imageSmoothingEnabled = false;
 	ctx.drawImage(cameraView, 0,0, cameraOutput.width, cameraOutput.height);
 	Filters.filterImage(Filters.paletteSwap, cameraOutput, [palettes[currentPalette]])
 	var dataURL = cameraOutput.toDataURL('image/png');
@@ -407,6 +408,12 @@ var buttons = {
 		x:33,
 		y:131,
 		width:13,
+		height:13
+	},
+	record: {
+		x:48,
+		y:131,
+		width:16,
 		height:13
 	}
 };
@@ -601,6 +608,9 @@ function initCameraUI() {
 				// change UI to timer and trigger 3s delay to capture
 				currentUI = uiTimer;
 				setTimeout(captureImage, 3000);
+			} else if(isInside(mousePos, buttons.record)) {
+				// start GIF recording
+				gifStart();
 			}
 		} else if(currentUI === uiCapture) {
 			if(isInside(mousePos, buttons.bottomLeft)) {
@@ -735,8 +745,44 @@ function initCameraDrawing() {
 		cameraVars.xScale *= -1;
 	}
 
+	cameraOutput.width = cameraVars.width * outputScale;
+	cameraOutput.height = cameraVars.height * outputScale;
+	let ctx = cameraOutput.getContext("2d");
+	ctx.imageSmoothingEnabled = false;
+
 	clearInterval(frameDrawing)
 	frameDrawing = setInterval(drawFrame, 100);
+}
+
+function gifStart() {
+	gifEncoder = new GIF({
+		workers: 2,
+		workerScript: 'gifjs/gif.worker.js',
+		quality: 10,
+		repeat: 0,
+		width: cameraOutput.width,
+		height: cameraOutput.height
+	});
+	gifEncoder.on('finished', function(blob) {
+		download('webgbcam.gif', URL.createObjectURL(blob));
+	});
+	gifFrames = gifLength;
+	currentUI = uiRecord;
+	gifRecording = true;
+}
+
+function gifEnd() {
+	gifRecording = false;
+	currentUI = uiMain;
+	gifEncoder.render();
+}
+
+function gifFrame() {
+	let ctx = cameraOutput.getContext("2d");
+	Filters.filterImage(Filters.paletteSwap, cameraView, [palettes[currentPalette]])
+	ctx.drawImage(cameraView, 0,0, cameraOutput.width, cameraOutput.height);
+	gifEncoder.addFrame(ctx, {delay: 100, copy: true});
+	if(--gifFrames == 0) gifEnd();
 }
 
 function drawFrame() {
@@ -749,16 +795,21 @@ function drawFrame() {
 	ctx.drawImage(cameraView, 16, 16);
 	ctx.drawImage(currentUI, 0, 0);
 
-	if(currentUI === uiSettings) {
+	if (currentUI === uiSettings) {
 		// update settings values	
-		ctx.fillStyle = "rgb(192,192,192)"
+		ctx.fillStyle = "rgb(192,192,192)";
 		for(let i = 1; i <= cameraVars.contrast; i++) {
 			ctx.fillRect(42, 22 - (i*3), 4, 2);
 		}
 		for(let i = 1; i <= cameraVars.gamma; i++) {
 			ctx.fillRect(97, 22 - (i*3), 4, 2);
 		}
+	} else if (currentUI === uiRecord) {
+		// update record length
+		ctx.fillStyle = "rgb(64,64,64)";
+		ctx.fillRect(25, 134, 110 - (gifFrames / gifLength * 110), 6);
 	}
 
 	Filters.filterImage(Filters.paletteSwap, appView, [palettes[currentPalette]])
+	if (gifRecording) gifFrame();
 }
