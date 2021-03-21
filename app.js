@@ -324,16 +324,19 @@ function download(filename, content) {
   document.body.removeChild(element);
 }
 
-function savePicture() {
+function getFileDate() {
 	let now = new Date();
 	// i love javascript
 	let dateString = now.getDate() + "-" + (now.getMonth()+1) + "-"+ now.getFullYear() + " " + now.getHours() + " " + now.getMinutes() + " " + now.getSeconds();
+	return dateString;
+}
 
+function savePicture() {
 	let ctx = cameraOutput.getContext("2d");
 	ctx.drawImage(cameraView, 0,0, cameraOutput.width, cameraOutput.height);
 	Filters.filterImage(Filters.paletteSwap, cameraOutput, [palettes[currentPalette]])
 	var dataURL = cameraOutput.toDataURL('image/png');
-	download("webcamgb " + dateString + ".png", dataURL);
+	download("webgbcam " + getFileDate() + ".png", dataURL);
 }
 
 // bounding boxes for each button in the app
@@ -764,7 +767,7 @@ function gifStart() {
 		height: cameraOutput.height
 	});
 	gifEncoder.on('finished', function(blob) {
-		download('webgbcam.gif', URL.createObjectURL(blob));
+		download("webgbcam " + getFileDate() + ".gif", URL.createObjectURL(blob));
 	});
 	gifFrames = gifLength;
 	currentUI = uiRecord;
