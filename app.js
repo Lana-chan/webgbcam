@@ -212,7 +212,10 @@ const cameraStream = document.querySelector("#camera-stream"),
 			uiSettings = document.querySelector("#ui-settings"),
 			uiHidden = document.querySelector("#ui-hidden"),
 			uiTimer = document.querySelector("#ui-timer"),
-			uiRecord = document.querySelector("#ui-record");
+			uiRecord = document.querySelector("#ui-record"),
+			gifPreview = document.querySelector("#gif-preview"),
+			gifImg = document.querySelector("#gif-img"),
+			gifButtons = document.querySelector("#gif-buttons");
 var amountOfCameras = 0;
 var currentFacingMode = 'user';
 var appScale;
@@ -221,7 +224,8 @@ const gifLength = 50;
 const outputScale = 5;
 var gifRecording,
 		gifEncoder,
-		gifFrames;
+		gifFrames,
+		gifBlob;
 
 // global settings for gbcamera
 var renderWidth = 160,
@@ -757,6 +761,28 @@ function initCameraDrawing() {
 	frameDrawing = setInterval(drawFrame, 100);
 }
 
+function showGifModal() {
+	gifPreview.classList.remove("hidden");
+}
+
+function loadGifModal(blob) {
+	gifImg.src = URL.createObjectURL(blob);
+	gifBlob = blob;
+	gifButtons.classList.remove("hidden");
+}
+
+function downloadGif() {
+	download("webgbcam " + getFileDate() + ".gif", URL.createObjectURL(gifBlob));
+	resetGifModal();
+}
+
+function resetGifModal() {
+	gifBlob = null;
+	gifImg.src = "loading.gif";
+	gifPreview.classList.add("hidden");
+	gifButtons.classList.add("hidden");
+}
+
 function gifStart() {
 	gifEncoder = new GIF({
 		workers: 2,
@@ -767,7 +793,8 @@ function gifStart() {
 		height: cameraOutput.height
 	});
 	gifEncoder.on('finished', function(blob) {
-		download("webgbcam " + getFileDate() + ".gif", URL.createObjectURL(blob));
+		loadGifModal(blob);
+		//download("webgbcam " + getFileDate() + ".gif", URL.createObjectURL(blob));
 	});
 	gifFrames = gifLength;
 	currentUI = uiRecord;
@@ -778,6 +805,7 @@ function gifEnd() {
 	gifRecording = false;
 	currentUI = uiMain;
 	gifEncoder.render();
+	showGifModal();
 }
 
 function gifFrame() {

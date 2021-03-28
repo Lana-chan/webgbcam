@@ -1,23 +1,24 @@
-const cacheName = 'webgbcam-v3'
+const cacheName = 'webgbcam-v3.1'
 
 self.addEventListener('install', function(e) {
  e.waitUntil(
    caches.open(cacheName).then(function(cache) {
      return cache.addAll([
-			 '.',
-       'index.html',
-       'style.css',
-       'app.js',
-       'bg.png',
-       'mac-frame.png',
-       'ui-capture.png',
-       'ui-settings.png',
-       'ui-main.png',
-       'ui-hidden.png',
-       'ui-timer.png',
-       'ui-record.png',
-       'gifjs/gif.js',
-       'gifjs/gif.worker.js'
+      '.',
+      'index.html',
+      'style.css',
+      'app.js',
+      'bg.png',
+      'mac-frame.png',
+      'ui-capture.png',
+      'ui-settings.png',
+      'ui-main.png',
+      'ui-hidden.png',
+      'ui-timer.png',
+      'ui-record.png',
+      'loading.gif',
+      'gifjs/gif.js',
+      'gifjs/gif.worker.js'
      ]);
    })
  );

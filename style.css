@@ -94,3 +94,25 @@ body {
 	bottom: 30px;
 	left: calc(50% - 100px);*/
 }
+.right {
+	float: right;
+}
+
+.modal {
+	position: absolute;
+	top: 0;
+	left: 0;
+	max-width: 80%;
+	max-height: 80%;
+	transform: translate(calc(50vw - 50%),calc(50vh - 50%));
+}
+
+#gif-img {
+	object-fit: scale-down;
+	max-width:100%;
+	display: block;
+	margin: auto;
+}
+#gif-buttons {
+	margin: .5em;
+}

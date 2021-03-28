@@ -16,7 +16,7 @@
 <body>
 
 	<div class="maple-window">
-		<div class="maple-window-title"><span>webgbcam v3</span></div>
+		<div class="maple-window-title"><span>webgbcam v3.1</span></div>
 		<div id="camera">
 			<canvas id="app-view"></canvas>
 			<canvas id="camera-view"></canvas>
@@ -37,6 +37,15 @@
 		<p>if you like the stuff i do, check out <a href="https://maple.pet/">my website</a> or <a href="https://ko-fi.com/squirrel">donate to me on ko-fi</a>!</p>
 
 		<p>ps: you look great today!</p>
+	</div>
+
+	<div id="gif-preview" class="maple-window modal hidden">
+		<div class="maple-window-title"><span>gif preview</span></div>
+		<img id="gif-img" src="loading.gif"/>
+		<div id="gif-buttons" class="hidden">
+			<button type="button" onclick="downloadGif();">yes!!!</button>
+			<button class="right" type="button" onclick="resetGifModal();">no!!!</button>
+		</div>
 	</div>
 	
 	<div class="hidden">
