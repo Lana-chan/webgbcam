@@ -242,7 +242,8 @@ var cameraVars = {
 	xOffset: 0,
 	yOffset: 0,
 	xScale: 1,
-	yScale: 1
+	yScale: 1,
+	flipped: false
 };
 
 const sliderGamma = [
@@ -702,22 +703,26 @@ function initCameraStream() {
 			facingMode: currentFacingMode,
 		},
 	};
-
-	navigator.mediaDevices
-		.getUserMedia(constraints)
-		.then(handleSuccess)
-		.catch(handleError);
-
+	
 	function handleSuccess(stream) {
 		window.stream = stream; // make stream available to browser console
 		cameraStream.srcObject = stream;
 
+		let track = window.stream.getVideoTracks()[0];
+		cameraStream.width = track.getSettings().width;
+		cameraStream.height = track.getSettings().height;
+		
 		setTimeout(initCameraDrawing, 500);
 	}
-
+	
 	function handleError(error) {
 		console.error('getUserMedia() error: ', error);
 	}
+	
+	navigator.mediaDevices
+		.getUserMedia(constraints)
+		.then(handleSuccess)
+		.catch(handleError);
 }
 
 function initCameraDrawing() {
@@ -732,24 +737,28 @@ function initCameraDrawing() {
 	// calculate scale and offset to render camera stream to camera view canvas
 	if(cameraStream.videoWidth >= cameraStream.videoHeight) {
 		// horizontal
-		cameraVars.yScale = cameraVars.height;
-		cameraVars.xScale = (cameraVars.height / cameraStream.videoHeight) * cameraStream.videoWidth;
+		cameraVars.yScale = cameraStream.videoHeight;
+		cameraVars.xScale = Math.floor((cameraStream.videoHeight / cameraVars.height) * cameraVars.width);
 		cameraVars.yOffset = 0;
-		cameraVars.xOffset = -((cameraVars.xScale - cameraVars.width) / 2);
+		cameraVars.xOffset = Math.floor((cameraStream.videoWidth - cameraVars.xScale) / 2);
 	} else {
 		//vertical
-		cameraVars.xScale = cameraVars.width;
-		cameraVars.yScale = (cameraVars.width / cameraStream.videoWidth) * cameraStream.videoHeight;
+		cameraVars.xScale = cameraStream.videoWidth;
+		cameraVars.yScale = Math.floor((cameraStream.videoWidth / cameraVars.width) * cameraVars.height);
 		cameraVars.xOffset = 0;
-		cameraVars.yOffset = -((cameraVars.yScale - cameraVars.height) / 2);
+		cameraVars.yOffset = Math.floor((cameraStream.videoHeight - cameraVars.yScale) / 2);
 	}
+	console.log(cameraVars);
 
 	// canvas starts flipped for user facing camera
-	cameraView.getContext('2d').setTransform(1, 0, 0, 1, 0, 0);
 	if(settings.facingMode != 'environment') {
-		cameraView.getContext('2d').scale(-1,1);
-		cameraVars.xOffset *= -1;
-		cameraVars.xScale *= -1;
+		//cameraView.getContext('2d').setTransform(-1, 0, 0, 1, 0, 0);
+		cameraVars.flipped = true;
+	//	cameraView.getContext('2d').scale(-1,1);
+	//	cameraVars.xOffset *= -1;
+	//	cameraVars.xScale *= -1;
+	} else {
+		cameraVars.flipped = false;
 	}
 
 	cameraOutput.width = cameraVars.width * outputScale;
@@ -818,7 +827,10 @@ function gifFrame() {
 
 function drawFrame() {
 	let camctx = cameraView.getContext('2d');
-	camctx.drawImage(cameraStream, cameraVars.xOffset, cameraVars.yOffset, cameraVars.xScale, cameraVars.yScale);
+	if (cameraVars.flipped) {
+		camctx.setTransform(-1, 0, 0, 1, cameraVars.width, 0);
+	}
+	camctx.drawImage(cameraStream, cameraVars.xOffset, cameraVars.yOffset, cameraVars.xScale, cameraVars.yScale, 0, 0, cameraVars.width, cameraVars.height);
 	
 	Filters.filterImage(Filters.gbcamera, cameraView, [cameraVars.dither]);
 	
@@ -841,6 +853,10 @@ function drawFrame() {
 		ctx.fillRect(25, 134, 110 - (gifFrames / gifLength * 110), 6);
 	}
 
-	Filters.filterImage(Filters.paletteSwap, appView, [palettes[currentPalette]])
+	try {
+		Filters.filterImage(Filters.paletteSwap, appView, [palettes[currentPalette]])
+	} catch(e) {
+
+	}
 	if (gifRecording) gifFrame();
 }
