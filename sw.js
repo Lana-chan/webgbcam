@@ -1,4 +1,4 @@
-const cacheName = 'webgbcam-v3.1'
+const cacheName = 'webgbcam-v3.2'
 
 self.addEventListener('install', function(e) {
  e.waitUntil(
