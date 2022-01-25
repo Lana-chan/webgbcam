@@ -1,4 +1,4 @@
-const cacheName = 'webgbcam-v3.2'
+const cacheName = 'webgbcam-v3.1'
 
 self.addEventListener('install', function(e) {
  e.waitUntil(
@@ -22,6 +22,23 @@ self.addEventListener('install', function(e) {
      ]);
    })
  );
+});
+
+// this is supposed to invalidate old caches, i think. i don't know. stackoverflow
+self.addEventListener('activate', function(event) {
+  event.waitUntil(
+    caches.keys().then(function(cacheNames) {
+      return Promise.all(
+        cacheNames.filter(function(cacheName) {
+          // Return true if you want to remove this cache,
+          // but remember that caches are shared across
+          // the whole origin
+        }).map(function(cacheName) {
+          return caches.delete(cacheName);
+        })
+      );
+    })
+  );
 });
 
 // The fetch handler serves responses for same-origin resources from a cache.
