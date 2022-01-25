@@ -242,8 +242,7 @@ var cameraVars = {
 	xOffset: 0,
 	yOffset: 0,
 	xScale: 1,
-	yScale: 1,
-	flipped: false
+	yScale: 1
 };
 
 const sliderGamma = [
@@ -750,19 +749,10 @@ function initCameraDrawing() {
 	}
 	
 	// canvas starts flipped for user facing camera
-	let isSafari = navigator.vendor && navigator.vendor.indexOf('Apple') > -1 &&
-               navigator.userAgent &&
-               navigator.userAgent.indexOf('CriOS') == -1 &&
-               navigator.userAgent.indexOf('FxiOS') == -1;
-
-	if(settings.facingMode != 'environment' && !isSafari) {
-		//cameraView.getContext('2d').setTransform(-1, 0, 0, 1, 0, 0);
-		cameraVars.flipped = true;
-		//	cameraView.getContext('2d').scale(-1,1);
-		//	cameraVars.xOffset *= -1;
-		//	cameraVars.xScale *= -1;
+	if(settings.facingMode != "environment") { // not environment = front-facing phone cam or pc webcam, flip
+		cameraView.getContext('2d').setTransform(-1, 0, 0, 1, cameraVars.width, 0);
 	} else {
-		cameraVars.flipped = false;
+		cameraView.getContext('2d').setTransform(1, 0, 0, 1, 0, 0);
 	}
 	console.log(cameraVars);
 	
@@ -834,9 +824,6 @@ function gifFrame() {
 
 function drawFrame() {
 	let camctx = cameraView.getContext('2d');
-	if (cameraVars.flipped) {
-		camctx.setTransform(-1, 0, 0, 1, cameraVars.width, 0);
-	}
 	camctx.drawImage(cameraStream, cameraVars.xOffset, cameraVars.yOffset, cameraVars.xScale, cameraVars.yScale, 0, 0, cameraVars.width, cameraVars.height);
 	
 	Filters.filterImage(Filters.gbcamera, cameraView, [cameraVars.dither]);
