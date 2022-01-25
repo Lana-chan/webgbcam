@@ -748,24 +748,31 @@ function initCameraDrawing() {
 		cameraVars.xOffset = 0;
 		cameraVars.yOffset = Math.floor((cameraStream.videoHeight - cameraVars.yScale) / 2);
 	}
-	console.log(cameraVars);
-
+	
 	// canvas starts flipped for user facing camera
-	if(settings.facingMode != 'environment') {
+	let isSafari = navigator.vendor && navigator.vendor.indexOf('Apple') > -1 &&
+               navigator.userAgent &&
+               navigator.userAgent.indexOf('CriOS') == -1 &&
+               navigator.userAgent.indexOf('FxiOS') == -1;
+
+	if(settings.facingMode != 'environment' && !isSafari) {
 		//cameraView.getContext('2d').setTransform(-1, 0, 0, 1, 0, 0);
 		cameraVars.flipped = true;
-	//	cameraView.getContext('2d').scale(-1,1);
-	//	cameraVars.xOffset *= -1;
-	//	cameraVars.xScale *= -1;
+		//	cameraView.getContext('2d').scale(-1,1);
+		//	cameraVars.xOffset *= -1;
+		//	cameraVars.xScale *= -1;
 	} else {
 		cameraVars.flipped = false;
 	}
-
+	console.log(cameraVars);
+	
 	cameraOutput.width = cameraVars.width * outputScale;
 	cameraOutput.height = cameraVars.height * outputScale;
 	let ctx = cameraOutput.getContext("2d");
 	ctx.imageSmoothingEnabled = false;
 
+	cameraStream.play();
+	
 	clearInterval(frameDrawing)
 	frameDrawing = setInterval(drawFrame, 100);
 }
