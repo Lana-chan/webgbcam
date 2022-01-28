@@ -52,6 +52,8 @@ many of which were used in this project.
  */
 ```
 
+The license does not obligate you do so, but if you build something upon the code in this repository, I'd love to hear about it and I ask that you credit me in it.
+
 [gif.js](https://github.com/jnordberg/gif.js) by Johan Nordberg:
 
 ```
