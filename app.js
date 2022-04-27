@@ -1,29 +1,30 @@
 /*
- * ------------------------------------------------------------
- * "THE BEERWARE LICENSE" (Revision 42):
- * maple "mavica" syrup <maple@maple.pet> wrote this code.
- * As long as you retain this notice, you can do whatever you
- * want with this stuff. If we meet someday, and you think this
- * stuff is worth it, you can buy me a beer in return.
- * ------------------------------------------------------------
- */
+* Copyright (c) 2021-2022 maple@maple.pet
+* 
+* This software is licensed through the Anti-Fascist and the Anti-Capitalist
+* licenses. See LICENSE for more details.
+* 
+* The above copyright notice, this permission notice and any supplementary 
+* license documents shall be included in all copies or substantial portions
+* of the Software.
+*/
 
 // 4-color GB palette must be dark to light
 const palettes = [
-  // AYY4 - https://lospec.com/palette-list/ayy4
-  [
-    [0, 48, 59],
-    [255, 119, 119],
-    [255, 206, 150],
-    [241, 242, 218]
+	// AYY4 - https://lospec.com/palette-list/ayy4
+	[
+		[0, 48, 59],
+		[255, 119, 119],
+		[255, 206, 150],
+		[241, 242, 218]
 	],
 	/* this one was removed in favour of spacehaze which is very similar
-  // Barbie: The Slasher Movie - https://lospec.com/palette-list/barbie-the-slasher-movie
-  [
-    [0, 0, 0],
-    [110, 31, 177],
-    [204, 51, 133],
-    [248, 251, 243]
+	// Barbie: The Slasher Movie - https://lospec.com/palette-list/barbie-the-slasher-movie
+	[
+		[0, 0, 0],
+		[110, 31, 177],
+		[204, 51, 133],
+		[248, 251, 243]
 	],*/
 	// SpaceHaze - https://lospec.com/palette-list/spacehaze
 	[
@@ -32,75 +33,75 @@ const palettes = [
 		[204, 52, 149],
 		[248, 227, 196]
 	],
-  // CRTGB - https://lospec.com/palette-list/crtgb
-  [
-    [6, 6, 1],
-    [11, 62, 8],
-    [72, 154, 13],
-    [218, 242, 34]
-  ],
-  // Amber CRTGB - https://lospec.com/palette-list/amber-crtgb
-  [
-    [13, 4, 5],
-    [94, 18, 16],
-    [211, 86, 0],
-    [254, 208, 24]
-  ],
-  // Kirby (SGB) - https://lospec.com/palette-list/kirby-sgb
-  [
-    [44, 44, 150],
-    [119, 51, 231],
-    [231, 134, 134],
-    [247, 190, 247]
-  ],
-  // CherryMelon - https://lospec.com/palette-list/cherrymelon
-  [
-    [1, 40, 36],
-    [38, 89, 53],
-    [255, 77, 109],
-    [252, 222, 234]
-  ],
-  // Pumpkin GB - https://lospec.com/palette-list/pumpkin-gb
-  [
-    [20, 43, 35],
-    [25, 105, 44],
-    [244, 110, 22],
-    [247, 219, 126]
-  ],
-  // Purpledawn - https://lospec.com/palette-list/purpledawn
-  [
-    [0, 27, 46],
-    [45, 117, 126],
-    [154, 123, 188],
-    [238, 253, 237]
-  ],
-  // Royal4 - https://lospec.com/palette-list/royal4
-  [
-    [82, 18, 150],
-    [138, 31, 172],
-    [212, 134, 74],
-    [235, 219, 94]
-  ],
-  // Grand Dad 4 - https://lospec.com/palette-list/grand-dad-4
-  [
-    [76, 28, 45],
-    [210, 60, 78],
-    [95, 177, 245],
-    [234, 245, 250]
-  ],
-  // Mural GB - https://lospec.com/palette-list/mural-gb
-  [
-    [10, 22, 78],
-    [162, 81, 48],
-    [206, 173, 107],
-    [250, 253, 255]
-  ],
-  // Ocean GB - https://lospec.com/palette-list/ocean-gb
-  [
-    [28, 21, 48],
-    [42, 48, 139],
-    [54, 125, 1216],
-    [141, 226, 246]
+	// CRTGB - https://lospec.com/palette-list/crtgb
+	[
+		[6, 6, 1],
+		[11, 62, 8],
+		[72, 154, 13],
+		[218, 242, 34]
+	],
+	// Amber CRTGB - https://lospec.com/palette-list/amber-crtgb
+	[
+		[13, 4, 5],
+		[94, 18, 16],
+		[211, 86, 0],
+		[254, 208, 24]
+	],
+	// Kirby (SGB) - https://lospec.com/palette-list/kirby-sgb
+	[
+		[44, 44, 150],
+		[119, 51, 231],
+		[231, 134, 134],
+		[247, 190, 247]
+	],
+	// CherryMelon - https://lospec.com/palette-list/cherrymelon
+	[
+		[1, 40, 36],
+		[38, 89, 53],
+		[255, 77, 109],
+		[252, 222, 234]
+	],
+	// Pumpkin GB - https://lospec.com/palette-list/pumpkin-gb
+	[
+		[20, 43, 35],
+		[25, 105, 44],
+		[244, 110, 22],
+		[247, 219, 126]
+	],
+	// Purpledawn - https://lospec.com/palette-list/purpledawn
+	[
+		[0, 27, 46],
+		[45, 117, 126],
+		[154, 123, 188],
+		[238, 253, 237]
+	],
+	// Royal4 - https://lospec.com/palette-list/royal4
+	[
+		[82, 18, 150],
+		[138, 31, 172],
+		[212, 134, 74],
+		[235, 219, 94]
+	],
+	// Grand Dad 4 - https://lospec.com/palette-list/grand-dad-4
+	[
+		[76, 28, 45],
+		[210, 60, 78],
+		[95, 177, 245],
+		[234, 245, 250]
+	],
+	// Mural GB - https://lospec.com/palette-list/mural-gb
+	[
+		[10, 22, 78],
+		[162, 81, 48],
+		[206, 173, 107],
+		[250, 253, 255]
+	],
+	// Ocean GB - https://lospec.com/palette-list/ocean-gb
+	[
+		[28, 21, 48],
+		[42, 48, 139],
+		[54, 125, 1216],
+		[141, 226, 246]
 	],
 	// Alleyway - ISS
 	[
@@ -116,47 +117,47 @@ const palettes = [
 		[195, 196, 165],
 		[227, 230, 201]
 	],
-  // Kadabura4 - https://lospec.com/palette-list/kadabura4
-  [
-    [0, 0, 0],
-    [87, 87, 87],
-    [219, 0, 12],
-    [255, 255, 255]
-  ],
-  // Virtual - ISS
-  [
-    [2, 0, 0],
-    [65, 0, 0],
-    [127, 0, 0],
-    [255, 0, 0]
-  ],
-  // Love! Love! - ISS
-  [
-    [176, 16, 48],
-    [255, 96, 176],
-    [255, 184, 232],
-    [255, 255, 255]
-  ],
-  // Metroid II (SGB) - https://lospec.com/palette-list/metroid-ii-sgb
-  [
-    [44, 23, 0],
-    [4, 126, 96],
-    [182, 37, 88],
-    [174, 223, 30]
-  ],
-  // Micro 86 - https://lospec.com/palette-list/micro-86
-  [
-    [38, 0, 14],
-    [255, 0, 0],
-    [255, 123, 48],
-    [255, 217, 178]
-  ],
-  // Vivid 2Bit Scream - https://lospec.com/palette-list/vivid-2bit-scream
-  [
-    [86, 29, 23],
-    [92, 79, 163],
-    [116, 175, 52],
-    [202, 245, 50]
+	// Kadabura4 - https://lospec.com/palette-list/kadabura4
+	[
+		[0, 0, 0],
+		[87, 87, 87],
+		[219, 0, 12],
+		[255, 255, 255]
+	],
+	// Virtual - ISS
+	[
+		[2, 0, 0],
+		[65, 0, 0],
+		[127, 0, 0],
+		[255, 0, 0]
+	],
+	// Love! Love! - ISS
+	[
+		[176, 16, 48],
+		[255, 96, 176],
+		[255, 184, 232],
+		[255, 255, 255]
+	],
+	// Metroid II (SGB) - https://lospec.com/palette-list/metroid-ii-sgb
+	[
+		[44, 23, 0],
+		[4, 126, 96],
+		[182, 37, 88],
+		[174, 223, 30]
+	],
+	// Micro 86 - https://lospec.com/palette-list/micro-86
+	[
+		[38, 0, 14],
+		[255, 0, 0],
+		[255, 123, 48],
+		[255, 217, 178]
+	],
+	// Vivid 2Bit Scream - https://lospec.com/palette-list/vivid-2bit-scream
+	[
+		[86, 29, 23],
+		[92, 79, 163],
+		[116, 175, 52],
+		[202, 245, 50]
 	],
 	// Pastel GBC/SGB - submitted by synth___ruiner
 	[ 
@@ -316,16 +317,16 @@ function switchCameras() {
 }
 
 function download(filename, content) {
-  var element = document.createElement('a');
-  element.setAttribute('href', content);
-  element.setAttribute('download', filename);
+	var element = document.createElement('a');
+	element.setAttribute('href', content);
+	element.setAttribute('download', filename);
 
-  element.style.display = 'none';
-  document.body.appendChild(element);
+	element.style.display = 'none';
+	document.body.appendChild(element);
 
-  element.click();
+	element.click();
 
-  document.body.removeChild(element);
+	document.body.removeChild(element);
 }
 
 function getFileDate() {
@@ -595,7 +596,7 @@ function initCameraUI() {
 
 	// handle canvas app clicks
 	appView.addEventListener('click', function(e) {
-    var mousePos = getMousePos(appView, e);
+		var mousePos = getMousePos(appView, e);
 
 		// buttons in main screen
 		if(currentUI === uiMain) {
@@ -661,7 +662,7 @@ function initCameraUI() {
 				currentUI = uiMain;
 			}
 		}
-    
+		
 	}, false);
 }
 

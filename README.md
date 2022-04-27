@@ -41,15 +41,62 @@ many of which were used in this project.
 ## License
 
 ```
-/*
- * ------------------------------------------------------------
- * "THE BEERWARE LICENSE" (Revision 42):
- * maple "mavica" syrup <maple@maple.pet> wrote this code.
- * As long as you retain this notice, you can do whatever you
- * want with this stuff. If we meet someday, and you think this
- * stuff is worth it, you can buy me a beer in return.
- * ------------------------------------------------------------
- */
+Copyright (c) 2021 maple@maple.pet
+
+The following license is modified from the Anti-Fascist MIT License and the 
+Anti-Capitalist Software License.
+
+ANTI-FASCIST LICENSE:
+
+The following conditions must be met by any person obtaining a copy of this
+software:
+
+- You MAY NOT be a fascist.
+- You MUST not financially support fascists.
+- You MUST not publicly voice support for fascists.
+
+"Fascist" can be understood as any entity which supports radical authoritarian
+nationalism. For example: Donald Trump is a fascist; if you donated to his
+campaign then all rights provided by this license are not granted to you.
+
+ANTI-CAPITALIST SOFTWARE LICENSE (v 1.4):
+
+This is anti-capitalist software, released for free use by individuals and
+organizations that do not operate by capitalist principles.
+
+Permission is hereby granted, free of charge, to any person or organization
+(the "User") obtaining a copy of this software and associated documentation
+files (the "Software"), to use, copy, modify, merge, distribute, and/or sell
+copies of the Software, subject to the following conditions:
+
+  1. The above copyright notice and this permission notice shall be included
+  in all copies or modified versions of the Software.
+
+  2. The User is one of the following:
+    a. An individual person, laboring for themselves
+    b. A non-profit organization
+    c. An educational institution
+    d. An organization that seeks shared profit for all of its members, and
+    allows non-members to set the cost of their labor
+
+  3. If the User is an organization with owners, then all owners are workers
+  and all workers are owners with equal equity and/or equal vote.
+
+  4. If the User is an organization, then the User is not law enforcement or
+  military, or working for or under either.
+
+	5. The User must not be involved in Non-Fungible Tokens or any other form of
+	cryptocurrency minting or exchange.
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT EXPRESS OR IMPLIED WARRANTY OF ANY
+KIND, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS
+BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ```
 
 The license does not obligate you do so, but if you build something upon the code in this repository, I'd love to hear about it and I ask that you credit me in it.
