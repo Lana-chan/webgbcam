@@ -121,8 +121,8 @@ body {
 .blink {
 	color: #f00;
 	text-align: center;
-	animation: blink-animation 1s steps(5, start) infinite;
-	-webkit-animation: blink-animation 1s steps(5, start) infinite;
+	animation: blink-animation 1s steps(5, start) 4;
+	-webkit-animation: blink-animation 1s steps(5, start) 4;
 }
 @keyframes blink-animation {
 	to {
