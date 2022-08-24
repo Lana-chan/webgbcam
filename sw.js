@@ -33,7 +33,9 @@ self.addEventListener('activate', function(event) {
         }
       }));
 		})
-	);
+	).then(function () {
+		return self.clients.claim();
+	});
 });
 
 // The fetch handler serves responses for same-origin resources from a cache.
