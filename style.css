@@ -7,7 +7,7 @@ html, body{
 }
 
 body {
-  background: url("bg.png");
+  background: url("ui/bg.png");
   text-align: center;
   font: 12px sans-serif;
 }
@@ -22,7 +22,7 @@ body {
 	display: inline-block;
 	border-width: 35px 20px 20px 20px;
 	border-style: solid;
-	border-image: url("mac-frame.png") 30 40 22 22 fill repeat;
+	border-image: url("ui/mac-frame.png") 30 40 22 22 fill repeat;
 	border-image-width: 30px 40px 22px 22px;
 	color: #000;
 	position: relative;
@@ -54,7 +54,7 @@ body {
 	font-size: 12px;
 	font-weight: bold;
   font-family: chicago, sans-serif;
-  vertical-align: middle;
+  /*vertical-align: middle;*/
   margin-right: 20px;
   white-space: nowrap;
 }

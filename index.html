@@ -15,7 +15,7 @@
 </head>
 <body>
 	<div class="maple-window">
-		<div class="maple-window-title"><span>webgbcam v3.3</span></div>
+		<div class="maple-window-title"><span>webgbcam v3.4</span></div>
 		<div id="camera">
 			<canvas id="app-view"></canvas>
 			<canvas id="camera-view"></canvas>
@@ -34,6 +34,14 @@
 		<p>webgbcam uses <a href="https://github.com/jnordberg/gif.js">gif.js</a><br/>
 		you can check the source code on <a href="https://github.com/Lana-chan/webgbcam">github</a>!</p>
 
+		<p>as seen on:
+			<ul>
+				<li>Mashable: <a href="https://mashable.com/article/game-boy-camera-style-web-app">New web app lets you take Game Boy Camera-style pics and pretend it's 1998</a></li>
+				<li>Nerdist: <a href="https://nerdist.com/article/game-boy-app-camera-selfies/">Web App Lets You Take 1998 Game Boy Camera-Style Selfies</a></li>
+				<li>Hackaday: <a href="https://hackaday.com/2020/10/26/the-game-boy-camera-or-how-i-learned-to-stop-worrying-and-love-the-pixels/">The Game Boy Camera, Or: How I Learned To Stop Worrying And Love The Pixels</a></li>
+			</ul>
+		</p>
+
 		<p>if you like the stuff i do, check out <a href="https://maple.pet/">my website</a> or <a href="https://ko-fi.com/squirrel">donate to me on ko-fi</a>!</p>
 
 		<p>ps: you look great today!</p>
@@ -41,7 +49,7 @@
 
 	<div id="gif-preview" class="maple-window modal hidden">
 		<div class="maple-window-title"><span>gif preview</span></div>
-		<img id="gif-img" src="loading.gif"/>
+		<img id="gif-img" src="ui/loading.gif"/>
 		<div id="gif-buttons" class="hidden">
 			<button type="button" onclick="downloadGif();">yes!!!</button>
 			<button class="right" type="button" onclick="resetGifModal();">no!!!</button>
@@ -49,12 +57,12 @@
 	</div>
 	
 	<div class="hidden">
-		<img src="ui-main.png" id="ui-main" />
-		<img src="ui-settings.png" id="ui-settings" />
-		<img src="ui-capture.png" id="ui-capture" />
-		<img src="ui-hidden.png" id="ui-hidden" />
-		<img src="ui-timer.png" id="ui-timer" />
-		<img src="ui-record.png" id="ui-record" />
+		<img src="ui/ui-main.png" id="ui-main" />
+		<img src="ui/ui-settings.png" id="ui-settings" />
+		<img src="ui/ui-capture.png" id="ui-capture" />
+		<img src="ui/ui-hidden.png" id="ui-hidden" />
+		<img src="ui/ui-timer.png" id="ui-timer" />
+		<img src="ui/ui-record.png" id="ui-record" />
 	</div>
 
 	<script type="text/javascript" src="gifjs/gif.js"></script>
