@@ -372,6 +372,21 @@ function savePicture() {
 	download("webgbcam " + getFileDate() + ".png", dataURL);
 }
 
+function loadPrefs() {
+	let localContrast = parseInt(localStorage.getItem("cameraContrast"));
+	let localGamma = parseInt(localStorage.getItem("cameraGamma"));
+	let localPalette = parseInt(localStorage.getItem("cameraPalette"));
+	cameraVars.contrast = (localContrast ? localContrast : 3);
+	cameraVars.gamma = (localGamma ? localGamma : 3);
+	currentPalette = (localPalette ? localPalette : 0);
+}
+
+function savePrefs() {
+	localStorage.setItem("cameraContrast", cameraVars.contrast);
+	localStorage.setItem("cameraGamma", cameraVars.gamma);
+	localStorage.setItem("cameraPalette", currentPalette);
+}
+
 // bounding boxes for each button in the app
 var buttons = {
 	bottomLeft: {
@@ -602,6 +617,7 @@ document.addEventListener('DOMContentLoaded', function (event) {
 			'it seems your browser does not support camera capture! :(',
 		);
 	}
+	loadPrefs();
 });
 
 function restartCamera() {
@@ -671,18 +687,24 @@ function initCameraUI() {
 				}
 			} else if(isInside(mousePos, buttons.contrastLeft)) {
 				if(cameraVars.contrast > 0) cameraVars.contrast--;
+				savePrefs();
 			} else if(isInside(mousePos, buttons.contrastRight)) {
 				if(cameraVars.contrast < 6) cameraVars.contrast++;
+				savePrefs();
 			} else if(isInside(mousePos, buttons.brightnessLeft)) {
 				if(cameraVars.gamma > 0) cameraVars.gamma--;
+				savePrefs();
 			} else if(isInside(mousePos, buttons.brightnessRight)) {
 				if(cameraVars.gamma < 6) cameraVars.gamma++;
+				savePrefs();
 			} else if(isInside(mousePos, buttons.paletteLeft)) {
 				currentPalette--;
 				if(currentPalette < 0) currentPalette = palettes.length-1;
+				savePrefs(); 
 			} else if(isInside(mousePos, buttons.paletteRight)) {
 				currentPalette++;
 				if(currentPalette >= palettes.length) currentPalette = 0;
+				savePrefs();
 			}
 		} else if(currentUI === uiHidden) {
 			if(isInside(mousePos, buttons.hideUI)) {
@@ -733,14 +755,16 @@ function initCameraStream() {
 	};
 	
 	function handleSuccess(stream) {
-		window.stream = stream; // make stream available to browser console
-		cameraStream.srcObject = stream;
-
-		let track = window.stream.getVideoTracks()[0];
-		cameraStream.width = track.getSettings().width;
-		cameraStream.height = track.getSettings().height;
-		
-		setTimeout(initCameraDrawing, 500);
+		if (stream) {
+			window.stream = stream; // make stream available to browser console
+			cameraStream.srcObject = stream;
+	
+			let track = window.stream.getVideoTracks()[0];
+			cameraStream.width = track.getSettings().width;
+			cameraStream.height = track.getSettings().height;
+			
+			setTimeout(initCameraDrawing, 500);
+		}
 	}
 	
 	function handleError(error) {
