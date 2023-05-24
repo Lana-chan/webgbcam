@@ -1,4 +1,4 @@
-const cacheName = 'webgbcam-v3.5'
+const cacheName = 'webgbcam-v4.0'
 
 self.addEventListener('install', function(e) {
 e.waitUntil(
@@ -8,15 +8,15 @@ e.waitUntil(
 			'index.html',
 			'style.css',
 			'app.js',
-			'bg.png',
-			'mac-frame.png',
-			'ui-capture.png',
-			'ui-settings.png',
-			'ui-main.png',
-			'ui-hidden.png',
-			'ui-timer.png',
-			'ui-record.png',
-			'loading.gif',
+			'ui/bg.png',
+			'ui/mac-frame.png',
+			'ui/ui-capture.png',
+			'ui/ui-settings.png',
+			'ui/ui-main.png',
+			'ui/ui-hidden.png',
+			'ui/ui-timer.png',
+			'ui/ui-record.png',
+			'ui/loading.gif',
 			'gifjs/gif.js',
 			'gifjs/gif.worker.js'
 		]);

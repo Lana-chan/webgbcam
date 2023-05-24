@@ -268,6 +268,7 @@ var cameraVars = {
 	dither: 0.6,
 	contrast: 3,
 	gamma: 3,
+	sharpness: 3,
 	xOffset: 0,
 	yOffset: 0,
 	xScale: 1,
@@ -292,6 +293,16 @@ const sliderContrast = [
 	1.8,
 	2.1,
 	2.4
+];
+
+const sliderSharpness = [
+	0,
+	0.50,
+	0.75,
+	1.00,
+	1.25,
+	2.00,
+	3.00
 ];
 
 // 8 x 8 Bayer Matrix
@@ -376,14 +387,17 @@ function loadPrefs() {
 	let localContrast = parseInt(localStorage.getItem("cameraContrast"));
 	let localGamma = parseInt(localStorage.getItem("cameraGamma"));
 	let localPalette = parseInt(localStorage.getItem("cameraPalette"));
+	let localSharpness = parseInt(localStorage.getItem("cameraSharpness"));
 	cameraVars.contrast = (localContrast ? localContrast : 3);
 	cameraVars.gamma = (localGamma ? localGamma : 3);
+	cameraVars.sharpness = (localSharpness ? localSharpness : 3);
 	currentPalette = (localPalette ? localPalette : 0);
 }
 
 function savePrefs() {
 	localStorage.setItem("cameraContrast", cameraVars.contrast);
 	localStorage.setItem("cameraGamma", cameraVars.gamma);
+	localStorage.setItem("cameraSharpness", cameraVars.sharpness);
 	localStorage.setItem("cameraPalette", currentPalette);
 }
 
@@ -443,6 +457,18 @@ var buttons = {
 		width:15,
 		height:13
 	},
+	sharpnessLeft: {
+		x:120,
+		y:126,
+		width:15,
+		height:13
+	},
+	sharpnessRight: {
+		x:135,
+		y:126,
+		width:15,
+		height:13
+	},
 	screenHotspot: {
 		x:31,
 		y:31,
@@ -456,13 +482,13 @@ var buttons = {
 		height:15
 	},
 	timer: {
-		x:33,
+		x:52,
 		y:131,
 		width:13,
 		height:13
 	},
 	record: {
-		x:48,
+		x:95,
 		y:131,
 		width:16,
 		height:13
@@ -490,13 +516,38 @@ Filters.filterImage = function(filter, canvas, var_args) {
 	canvas.getContext("2d").putImageData(idata, 0, 0);
 };
 
+function xyToIndex(x, y, width) {
+	return (x + y*width)*4;
+}
+
+Filters.sharpen = function(pixels, sharpness) {
+	if (sharpness == 0) return pixels;
+	let d = pixels.data;
+	let temp_buf = [];
+
+	for(i = 0; i < pixels.width; i++) for(j = 0; j < pixels.height; j++)
+	{
+			let ms = d[xyToIndex(i, Math.min(j+1,pixels.height-1), pixels.width)];
+			let mn = d[xyToIndex(i, Math.max(0,j-1), pixels.width)];
+			let mw = d[xyToIndex(Math.max(0,i-1), j, pixels.width)];
+			let me = d[xyToIndex(Math.min(i+1,pixels.width-1), j, pixels.width)];
+			let px = d[xyToIndex(i, j, pixels.width)];
+
+			temp_buf[xyToIndex(i, j, pixels.width)] = clampNumber(px+((4*px-mw-me-mn-ms)*sharpness), -128, 127);
+	}
+	for (let i = 0; i < d.length; i += 4) {
+		d[i] = temp_buf[i];
+	}
+
+	return pixels;
+}
+
 Filters.gbcamera = function(pixels, ditherFactor) {
 	let d = pixels.data;
 
 	for(let y = 0; y < pixels.height; y++) {
 		for(let x = 0; x < pixels.width; x++) {
-			let n = (x + y*pixels.width);
-			let i = n * 4;
+			let i = xyToIndex(x, y, pixels.width);
 
 			let bayer = bayer8[(y)%8][(x)%8];
 
@@ -697,6 +748,12 @@ function initCameraUI() {
 			} else if(isInside(mousePos, buttons.brightnessRight)) {
 				if(cameraVars.gamma < 6) cameraVars.gamma++;
 				savePrefs();
+			} else if(isInside(mousePos, buttons.sharpnessLeft)) {
+				if(cameraVars.sharpness > 0) cameraVars.sharpness--;
+				savePrefs();
+			} else if(isInside(mousePos, buttons.sharpnessRight)) {
+				if(cameraVars.sharpness < 6) cameraVars.sharpness++;
+				savePrefs();
 			} else if(isInside(mousePos, buttons.paletteLeft)) {
 				currentPalette--;
 				if(currentPalette < 0) currentPalette = palettes.length-1;
@@ -879,6 +936,7 @@ function drawFrame() {
 	let camctx = cameraView.getContext('2d');
 	camctx.drawImage(cameraStream, cameraVars.xOffset, cameraVars.yOffset, cameraVars.xScale, cameraVars.yScale, 0, 0, cameraVars.width, cameraVars.height);
 	
+	Filters.filterImage(Filters.sharpen, cameraView, [sliderSharpness[cameraVars.sharpness]]);
 	Filters.filterImage(Filters.gbcamera, cameraView, [cameraVars.dither]);
 	
 	let ctx = appView.getContext("2d");
@@ -893,6 +951,9 @@ function drawFrame() {
 		}
 		for(let i = 1; i <= cameraVars.gamma; i++) {
 			ctx.fillRect(97, 22 - (i*3), 4, 2);
+		}
+		for(let i = 1; i <= cameraVars.sharpness; i++) {
+			ctx.fillRect(152, 135 - (i*3), 4, 2);
 		}
 	} else if (currentUI === uiRecord) {
 		// update record length

@@ -134,3 +134,9 @@ body {
 		visibility: hidden;
 	}
 }
+
+ul {
+	margin-top: -1em;
+	padding: 0;
+	list-style: none;
+}
