@@ -297,12 +297,12 @@ const sliderContrast = [
 
 const sliderSharpness = [
 	0,
+	0.25,
 	0.50,
 	0.75,
 	1.00,
 	1.25,
-	2.00,
-	3.00
+	2.00
 ];
 
 // 8 x 8 Bayer Matrix
@@ -520,6 +520,28 @@ function xyToIndex(x, y, width) {
 	return (x + y*width)*4;
 }
 
+Filters.grayscale = function(pixels) {
+	let d = pixels.data;
+
+	for (let i = 0; i < d.length; i += 4) {
+		let r = d[i];
+		let g = d[i+1];
+		let b = d[i+2];
+
+		// grayscale
+		let c = r*0.3 + g*0.59 + b*0.11;
+
+		// apply levels
+		c = clampNumber(applyLevels(c, 0, sliderContrast[cameraVars.contrast], sliderGamma[cameraVars.gamma]), 0, 255);
+
+		d[i] = c;
+		d[i+1] = c;
+		d[i+2] = c;
+	}
+
+	return pixels;
+}
+
 Filters.sharpen = function(pixels, sharpness) {
 	if (sharpness == 0) return pixels;
 	let d = pixels.data;
@@ -527,16 +549,18 @@ Filters.sharpen = function(pixels, sharpness) {
 
 	for(i = 0; i < pixels.width; i++) for(j = 0; j < pixels.height; j++)
 	{
-			let ms = d[xyToIndex(i, Math.min(j+1,pixels.height-1), pixels.width)];
-			let mn = d[xyToIndex(i, Math.max(0,j-1), pixels.width)];
-			let mw = d[xyToIndex(Math.max(0,i-1), j, pixels.width)];
-			let me = d[xyToIndex(Math.min(i+1,pixels.width-1), j, pixels.width)];
-			let px = d[xyToIndex(i, j, pixels.width)];
+			let ms = d[xyToIndex(i, Math.min(j+1,pixels.height-1), pixels.width)]-128;
+			let mn = d[xyToIndex(i, Math.max(0,j-1), pixels.width)]-128;
+			let mw = d[xyToIndex(Math.max(0,i-1), j, pixels.width)]-128;
+			let me = d[xyToIndex(Math.min(i+1,pixels.width-1), j, pixels.width)]-128;
+			let px = d[xyToIndex(i, j, pixels.width)]-128;
 
-			temp_buf[xyToIndex(i, j, pixels.width)] = clampNumber(px+((4*px-mw-me-mn-ms)*sharpness), -128, 127);
+			temp_buf[xyToIndex(i, j, pixels.width)] = clampNumber(px+((4*px-mw-me-mn-ms)*sharpness), -128, 127)+128;
 	}
 	for (let i = 0; i < d.length; i += 4) {
 		d[i] = temp_buf[i];
+		d[i+1] = temp_buf[i];
+		d[i+2] = temp_buf[i];
 	}
 
 	return pixels;
@@ -550,16 +574,7 @@ Filters.gbcamera = function(pixels, ditherFactor) {
 			let i = xyToIndex(x, y, pixels.width);
 
 			let bayer = bayer8[(y)%8][(x)%8];
-
-			let r = d[i];
-			let g = d[i+1];
-			let b = d[i+2];
-
-			// grayscale
-			let c = r*0.3 + g*0.59 + b*0.11;
-
-			// apply levels
-			c = clampNumber(applyLevels(c, 0, sliderContrast[cameraVars.contrast], sliderGamma[cameraVars.gamma]), 0, 255);
+			let c = d[i];
 
 			// apply bayer
 			c = clampNumber(c + ((bayer - 32) * ditherFactor), 0, 255);
@@ -936,6 +951,7 @@ function drawFrame() {
 	let camctx = cameraView.getContext('2d');
 	camctx.drawImage(cameraStream, cameraVars.xOffset, cameraVars.yOffset, cameraVars.xScale, cameraVars.yScale, 0, 0, cameraVars.width, cameraVars.height);
 	
+	Filters.filterImage(Filters.grayscale, cameraView, []);
 	Filters.filterImage(Filters.sharpen, cameraView, [sliderSharpness[cameraVars.sharpness]]);
 	Filters.filterImage(Filters.gbcamera, cameraView, [cameraVars.dither]);
 	
