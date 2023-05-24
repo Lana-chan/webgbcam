@@ -704,6 +704,12 @@ function captureImage() {
 function initCameraUI() {
 	initAppScaling();
 
+	const queryString = window.location.search;
+	const urlParams = new URLSearchParams(queryString);
+	if (urlParams.has('hideui')) {
+		currentUI = uiHidden;
+	}
+
 	// handle canvas app clicks
 	appView.addEventListener('click', function(e) {
 		var mousePos = getMousePos(appView, e);
