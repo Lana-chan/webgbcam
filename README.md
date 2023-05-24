@@ -38,6 +38,9 @@ used to implement the filter in different applications.
 Thanks to [lospec.com](https://lospec.com/palette-list) for making a list of palettes available,
 many of which were used in this project.
 
+Thanks to [gbdev.io](https://gbdev.io/pandocs/Gameboy_Camera.html) for information on
+the Game Boy Camera hardware, used for accurate filtering.
+
 ## License
 
 ```
