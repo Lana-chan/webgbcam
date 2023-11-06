@@ -244,7 +244,7 @@ var currentFacingMode = 'user';
 var appScale;
 var frameDrawing;
 const gifLength = 50;
-const outputScale = 5;
+var outputScale = 6;
 var gifRecording,
 		gifEncoder,
 		gifFrames,
@@ -385,6 +385,12 @@ var buttons = {
 		y:131,
 		width:16,
 		height:13
+	},
+	bppSwitch: {
+		x:45,
+		y:133,
+		width:50,
+		height:9
 	}
 };
 
@@ -526,6 +532,10 @@ var screens = {
 					if(currentPalette >= palettes.length) currentPalette = 0;
 					savePrefs();
 				}
+			},
+			{
+				bounding: buttons.bppSwitch,
+				action: bppSwitch
 			}
 		]
 	},
@@ -552,8 +562,8 @@ var screens = {
 };
 
 // global settings for gbcamera
-var renderWidth = 160,
-		renderHeight = 144,
+var renderWidth = 320,
+		renderHeight = 288,
 		currentPalette = 0,
 		currentUI = screens.uiMain;
 
@@ -567,7 +577,8 @@ var cameraVars = {
 	xOffset: 0,
 	yOffset: 0,
 	xScale: 1,
-	yScale: 1
+	yScale: 1,
+	bppSwitch: 2 // 2bpp = gameboy, 1bpp = atkinson, doubleres
 };
 
 // function to check if phone is portrait oriented
@@ -595,7 +606,8 @@ function getMousePos(canvas, event) {
 }
 //Function to check whether a point is inside a rectangle
 function isInside(pos, rect){
-	return pos.x > rect.x && pos.x < rect.x+rect.width && pos.y < rect.y+rect.height && pos.y > rect.y
+	const scale = 2;
+	return pos.x > rect.x * scale && pos.x < (rect.x+rect.width) * scale && pos.y < (rect.y+rect.height) * scale && pos.y > rect.y * scale;
 }
 
 function switchCameras() {
@@ -639,9 +651,12 @@ function loadPrefs() {
 	let localGamma = parseInt(localStorage.getItem("cameraGamma"));
 	let localPalette = parseInt(localStorage.getItem("cameraPalette"));
 	let localSharpness = parseInt(localStorage.getItem("cameraSharpness"));
+	let localBpp = parseInt(localStorage.getItem("cameraBpp"));
 	cameraVars.contrast = (localContrast ? localContrast : 3);
 	cameraVars.gamma = (localGamma ? localGamma : 3);
 	cameraVars.sharpness = (localSharpness ? localSharpness : 3);
+	cameraVars.bppSwitch = (localBpp ? localBpp : 2);
+	outputScale = (cameraVars.bppSwitch == 2 ? 6 : 3);
 	currentPalette = (localPalette ? localPalette : 0);
 }
 
@@ -649,7 +664,27 @@ function savePrefs() {
 	localStorage.setItem("cameraContrast", cameraVars.contrast);
 	localStorage.setItem("cameraGamma", cameraVars.gamma);
 	localStorage.setItem("cameraSharpness", cameraVars.sharpness);
+	localStorage.setItem("cameraBpp", cameraVars.bppSwitch);
 	localStorage.setItem("cameraPalette", currentPalette);
+}
+
+function bppSwitch() {
+	if (cameraVars.bppSwitch == 2) {
+		// to 1bpp
+		cameraVars.bppSwitch = 1;
+		cameraVars.width = 256;
+		cameraVars.height = 224;
+		outputScale = 3;
+	} else {
+		// to 2bpp
+		cameraVars.bppSwitch = 2;
+		cameraVars.width = 128;
+		cameraVars.height = 112;
+		outputScale = 6;
+	}
+	cameraView.width = cameraVars.width;
+	cameraView.height = cameraVars.height;
+	initCameraDrawing(false);
 }
 
 function applyLevels(value, brightness, contrast, gamma) {
@@ -745,6 +780,23 @@ Filters.gbcamera = function(pixels, ditherFactor) {
 		}
 	}
 	
+	return pixels;
+}
+
+// thanks to https://beyondloom.com/blog/dither.html
+Filters.atkinson = function(pixels) {
+	let w = pixels.width;
+	let d = pixels.data;
+	const e=Array(2*w).fill(0), m=[0,1,w-2,w-1,w,2*w-1];
+	for (i = 0; i < d.length; i=i+4) {
+		let x = d[i]/256.0;
+		const pix=x+(e.push(0),e.shift()), col=pix>.5, err=(pix-col)/8;
+		m.forEach(x => e[x]+=err);
+		let c = col ? 255 : 0;
+		d[i] = c;
+		d[i+1] = c;
+		d[i+2] = c;
+	}
 	return pixels;
 }
 
@@ -897,6 +949,11 @@ function initAppScaling() {
 	cameraView.height = cameraVars.height;
 	appView.width = renderWidth;
 	appView.height = renderHeight;
+
+	let ctx = appView.getContext("2d");
+	ctx.imageSmoothingEnabled = false;
+	ctx = cameraView.getContext("2d");
+	ctx.imageSmoothingEnabled = false;
 }
 
 // https://github.com/webrtc/samples/blob/gh-pages/src/content/devices/input-output/js/main.js
@@ -941,14 +998,14 @@ function initCameraStream() {
 		.catch(handleError);
 }
 
-function initCameraDrawing() {
+function initCameraDrawing(start = true) {
 	// if cameraStream has vertical or horizontal resolution of 0 then it's not initialized, we retry until the browser decides to properly work
 	if (cameraStream.videoHeight == 0) setTimeout(restartCamera, 500);
 
 	const track = window.stream.getVideoTracks()[0];
 	let settings = track.getSettings();
-	let str = JSON.stringify(settings, null, 4);
-	console.log('settings ' + str);
+	//let str = JSON.stringify(settings, null, 4);
+	//console.log('settings ' + str);
 
 	// calculate scale and offset to render camera stream to camera view canvas
 	if(cameraStream.videoWidth >= cameraStream.videoHeight) {
@@ -971,17 +1028,18 @@ function initCameraDrawing() {
 	} else {
 		cameraView.getContext('2d').setTransform(1, 0, 0, 1, 0, 0);
 	}
-	console.log(cameraVars);
+	//console.log(cameraVars);
 	
 	cameraOutput.width = cameraVars.width * outputScale;
 	cameraOutput.height = cameraVars.height * outputScale;
 	let ctx = cameraOutput.getContext("2d");
 	ctx.imageSmoothingEnabled = false;
 
-	cameraStream.play();
-	
-	clearInterval(frameDrawing)
-	frameDrawing = setInterval(drawFrame, 100);
+	if (start) {
+		cameraStream.play();
+		clearInterval(frameDrawing)
+		frameDrawing = setInterval(drawFrame, 100);
+	}
 }
 
 function showGifModal() {
@@ -1039,34 +1097,51 @@ function gifFrame() {
 	if(--gifFrames == 0) gifEnd();
 }
 
+function scaledFillRect(ctx, x, y, width, height) {
+	const scale = 2;
+	ctx.fillRect(x * scale, y * scale, width * scale, height * scale);
+}
+
 function drawFrame() {
 	let camctx = cameraView.getContext('2d');
 	camctx.drawImage(cameraStream, cameraVars.xOffset, cameraVars.yOffset, cameraVars.xScale, cameraVars.yScale, 0, 0, cameraVars.width, cameraVars.height);
 	
 	Filters.filterImage(Filters.grayscale, cameraView, []);
 	Filters.filterImage(Filters.sharpen, cameraView, [sliderSharpness[cameraVars.sharpness]]);
-	Filters.filterImage(Filters.gbcamera, cameraView, [cameraVars.dither]);
+	
+	if (cameraVars.bppSwitch == 2) {
+		Filters.filterImage(Filters.gbcamera, cameraView, [cameraVars.dither]);
+	} else {
+		Filters.filterImage(Filters.atkinson, cameraView, []);
+	}
 	
 	let ctx = appView.getContext("2d");
-	ctx.drawImage(cameraView, 16, 16);
-	ctx.drawImage(currentUI.elem, 0, 0);
+	ctx.drawImage(cameraView, 32, 32, 256, 224);
+	ctx.drawImage(currentUI.elem, 0, 0, 160, 144, 0, 0, 320, 288);
 
 	if (currentUI === screens.uiSettings) {
 		// update settings values	
 		ctx.fillStyle = "rgb(192,192,192)";
 		for(let i = 1; i <= cameraVars.contrast; i++) {
-			ctx.fillRect(42, 22 - (i*3), 4, 2);
+			scaledFillRect(ctx, 42, 22 - (i*3), 4, 2);
 		}
 		for(let i = 1; i <= cameraVars.gamma; i++) {
-			ctx.fillRect(97, 22 - (i*3), 4, 2);
+			scaledFillRect(ctx, 97, 22 - (i*3), 4, 2);
 		}
 		for(let i = 1; i <= cameraVars.sharpness; i++) {
-			ctx.fillRect(152, 135 - (i*3), 4, 2);
+			scaledFillRect(ctx, 152, 135 - (i*3), 4, 2);
+		}
+		
+		ctx.fillStyle = "rgb(130,130,130)";
+		if (cameraVars.bppSwitch == 2) {
+			scaledFillRect(ctx, 70, 135, 4, 4);
+		} else {
+			scaledFillRect(ctx, 65, 135, 4, 4);
 		}
 	} else if (currentUI === screens.uiRecord) {
 		// update record length
 		ctx.fillStyle = "rgb(64,64,64)";
-		ctx.fillRect(25, 134, 110 - (gifFrames / gifLength * 110), 6);
+		scaledFillRect(ctx, 25, 134, 110 - (gifFrames / gifLength * 110), 6);
 	}
 
 	try {
