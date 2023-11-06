@@ -1,2 +1,5 @@
 *.aseprite
 todo.txt
+key.pem
+server.pem
+simple-https-server.py

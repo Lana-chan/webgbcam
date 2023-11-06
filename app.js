@@ -236,12 +236,6 @@ const cameraStream = document.querySelector("#camera-stream"),
 			cameraOutput = document.querySelector("#camera-output"),
 			cameraDiv = document.querySelector("#camera"),
 			appView = document.querySelector("#app-view"),
-			uiMain = document.querySelector("#ui-main"),
-			uiCapture = document.querySelector("#ui-capture"),
-			uiSettings = document.querySelector("#ui-settings"),
-			uiHidden = document.querySelector("#ui-hidden"),
-			uiTimer = document.querySelector("#ui-timer"),
-			uiRecord = document.querySelector("#ui-record"),
 			gifPreview = document.querySelector("#gif-preview"),
 			gifImg = document.querySelector("#gif-img"),
 			gifButtons = document.querySelector("#gif-buttons");
@@ -250,30 +244,11 @@ var currentFacingMode = 'user';
 var appScale;
 var frameDrawing;
 const gifLength = 50;
-const outputScale = 5;
+var outputScale = 6;
 var gifRecording,
 		gifEncoder,
 		gifFrames,
 		gifBlob;
-
-// global settings for gbcamera
-var renderWidth = 160,
-		renderHeight = 144,
-		currentPalette = 0,
-		currentUI = uiMain;
-
-var cameraVars = {
-	width: 128,
-	height: 112,
-	dither: 0.6,
-	contrast: 3,
-	gamma: 3,
-	sharpness: 3,
-	xOffset: 0,
-	yOffset: 0,
-	xScale: 1,
-	yScale: 1
-};
 
 const sliderGamma = [
 	2.5,
@@ -318,88 +293,6 @@ const bayer8 = [
 ];
 
 const clampNumber = (num, a, b) => Math.min(Math.max(num, a), b);
-
-// function to check if phone is portrait oriented
-function screenIsPortrait() {
-	try {
-		let orientation = (screen.orientation || {}).type || screen.mozOrientation || screen.msOrientation;
-		if(orientation != undefined) {
-			if(orientation.includes('portrait')) return true;
-		} else if(window.orientation != undefined) {
-			if(window.orientation == 0) return true;
-		}
-		return false;
-	} catch(e) {
-		return false;
-	}
-}
-
-//Function to get the mouse position
-function getMousePos(canvas, event) {
-	var rect = canvas.getBoundingClientRect();
-	return {
-			x: (event.clientX - rect.left) / appScale,
-			y: (event.clientY - rect.top) / appScale
-	};
-}
-//Function to check whether a point is inside a rectangle
-function isInside(pos, rect){
-	return pos.x > rect.x && pos.x < rect.x+rect.width && pos.y < rect.y+rect.height && pos.y > rect.y
-}
-
-function switchCameras() {
-	if(amountOfCameras > 1) {
-		if (currentFacingMode === 'environment') currentFacingMode = 'user';
-		else currentFacingMode = 'environment';
-		initCameraStream();
-	}
-}
-
-function download(filename, content) {
-	var element = document.createElement('a');
-	element.setAttribute('href', content);
-	element.setAttribute('download', filename);
-
-	element.style.display = 'none';
-	document.body.appendChild(element);
-
-	element.click();
-
-	document.body.removeChild(element);
-}
-
-function getFileDate() {
-	let now = new Date();
-	// i love javascript
-	let dateString = now.getDate() + "-" + (now.getMonth()+1) + "-"+ now.getFullYear() + " " + now.getHours() + " " + now.getMinutes() + " " + now.getSeconds();
-	return dateString;
-}
-
-function savePicture() {
-	let ctx = cameraOutput.getContext("2d");
-	ctx.drawImage(cameraView, 0,0, cameraOutput.width, cameraOutput.height);
-	Filters.filterImage(Filters.paletteSwap, cameraOutput, [palettes[currentPalette]])
-	var dataURL = cameraOutput.toDataURL('image/png');
-	download("webgbcam " + getFileDate() + ".png", dataURL);
-}
-
-function loadPrefs() {
-	let localContrast = parseInt(localStorage.getItem("cameraContrast"));
-	let localGamma = parseInt(localStorage.getItem("cameraGamma"));
-	let localPalette = parseInt(localStorage.getItem("cameraPalette"));
-	let localSharpness = parseInt(localStorage.getItem("cameraSharpness"));
-	cameraVars.contrast = (localContrast ? localContrast : 3);
-	cameraVars.gamma = (localGamma ? localGamma : 3);
-	cameraVars.sharpness = (localSharpness ? localSharpness : 3);
-	currentPalette = (localPalette ? localPalette : 0);
-}
-
-function savePrefs() {
-	localStorage.setItem("cameraContrast", cameraVars.contrast);
-	localStorage.setItem("cameraGamma", cameraVars.gamma);
-	localStorage.setItem("cameraSharpness", cameraVars.sharpness);
-	localStorage.setItem("cameraPalette", currentPalette);
-}
 
 // bounding boxes for each button in the app
 var buttons = {
@@ -492,8 +385,307 @@ var buttons = {
 		y:131,
 		width:16,
 		height:13
+	},
+	bppSwitch: {
+		x:45,
+		y:133,
+		width:50,
+		height:9
 	}
 };
+
+var screens = {
+	uiMain: {
+		elem: document.querySelector("#ui-main"),
+		buttons: [
+			{
+				bounding: buttons.bottomLeft,
+				action: captureImage
+			},
+			{
+				bounding: buttons.screenHotspot,
+				action: captureImage
+			},
+			{
+				bounding: buttons.bottomRight,
+				action: switchCameras
+			},
+			{
+				bounding: buttons.topLeft,
+				action: ()=> {
+					currentUI = screens.uiSettings;
+				}
+			},
+			{
+				bounding: buttons.hideUI,
+				action: ()=> {
+					currentUI = screens.uiHidden;
+				}
+			},
+			{
+				bounding: buttons.timer,
+				action: ()=> {
+					// change UI to timer and trigger 3s delay to capture
+					currentUI = screens.uiTimer;
+					setTimeout(captureImage, 3000);
+				}
+			},
+			{
+				bounding: buttons.record,
+				action: gifStart
+			}
+		]
+	},
+	uiCapture: {
+		elem: document.querySelector("#ui-capture"),
+		buttons: [
+			{
+				bounding: buttons.bottomLeft,
+				action: ()=> {
+					// return
+					cameraStream.play();
+					currentUI = screens.uiMain;
+				}
+			},
+			{
+				bounding: buttons.bottomRight,
+				action: savePicture
+			},
+			{
+				bounding: buttons.topLeft,
+				action: ()=> {
+					// go to settings
+					currentUI = screens.uiSettings;
+				}
+			}
+		]
+	},
+	uiSettings: {
+		elem: document.querySelector("#ui-settings"),
+		buttons: [
+			{
+				bounding: buttons.bottomLeft,
+				action: ()=> {
+					// return
+					if(cameraStream.paused == true) {
+						// we're in capture
+						currentUI = screens.uiCapture;
+					} else {
+						currentUI = screens.uiMain;
+					}
+				}
+			},
+			{
+				bounding: buttons.contrastLeft,
+				action: ()=> {
+					if(cameraVars.contrast > 0) cameraVars.contrast--;
+					savePrefs();
+				}
+			},
+			{
+				bounding: buttons.contrastRight,
+				action: ()=> {
+					if(cameraVars.contrast < 6) cameraVars.contrast++;
+					savePrefs();
+				}
+			},
+			{
+				bounding: buttons.brightnessLeft,
+				action: ()=> {
+					if(cameraVars.gamma > 0) cameraVars.gamma--;
+					savePrefs();
+				}
+			},
+			{
+				bounding: buttons.brightnessRight,
+				action: ()=> {
+					if(cameraVars.gamma < 6) cameraVars.gamma++;
+					savePrefs();
+				}
+			},
+			{
+				bounding: buttons.sharpnessLeft,
+				action: ()=> {
+					if(cameraVars.sharpness > 0) cameraVars.sharpness--;
+					savePrefs();
+				}
+			},
+			{
+				bounding: buttons.sharpnessRight,
+				action: ()=> {
+					if(cameraVars.sharpness < 6) cameraVars.sharpness++;
+					savePrefs();
+				}
+			},
+			{
+				bounding: buttons.paletteLeft,
+				action: ()=> {
+					currentPalette--;
+					if(currentPalette < 0) currentPalette = palettes.length-1;
+					savePrefs(); 
+				}
+			},
+			{
+				bounding: buttons.paletteRight,
+				action: ()=> {
+					currentPalette++;
+					if(currentPalette >= palettes.length) currentPalette = 0;
+					savePrefs();
+				}
+			},
+			{
+				bounding: buttons.bppSwitch,
+				action: bppSwitch
+			}
+		]
+	},
+	uiHidden: {
+		elem: document.querySelector("#ui-hidden"),
+		buttons: [
+			{
+				bounding: buttons.hideUI,
+				action: ()=> {
+					// go back to main
+					currentUI = screens.uiMain;
+				}
+			}
+		]
+	},
+	uiTimer: {
+		elem: document.querySelector("#ui-timer"),
+		buttons: []
+	},
+	uiRecord: {
+		elem: document.querySelector("#ui-record"),
+		buttons: []
+	}
+};
+
+// global settings for gbcamera
+var renderWidth = 320,
+		renderHeight = 288,
+		currentPalette = 0,
+		currentUI = screens.uiMain;
+
+var cameraVars = {
+	width: 128,
+	height: 112,
+	dither: 0.6,
+	contrast: 3,
+	gamma: 3,
+	sharpness: 3,
+	xOffset: 0,
+	yOffset: 0,
+	xScale: 1,
+	yScale: 1,
+	bppSwitch: 2 // 2bpp = gameboy, 1bpp = atkinson, doubleres
+};
+
+// function to check if phone is portrait oriented
+function screenIsPortrait() {
+	try {
+		let orientation = (screen.orientation || {}).type || screen.mozOrientation || screen.msOrientation;
+		if(orientation != undefined) {
+			if(orientation.includes('portrait')) return true;
+		} else if(window.orientation != undefined) {
+			if(window.orientation == 0) return true;
+		}
+		return false;
+	} catch(e) {
+		return false;
+	}
+}
+
+//Function to get the mouse position
+function getMousePos(canvas, event) {
+	var rect = canvas.getBoundingClientRect();
+	return {
+			x: (event.clientX - rect.left) / appScale,
+			y: (event.clientY - rect.top) / appScale
+	};
+}
+//Function to check whether a point is inside a rectangle
+function isInside(pos, rect){
+	const scale = 2;
+	return pos.x > rect.x * scale && pos.x < (rect.x+rect.width) * scale && pos.y < (rect.y+rect.height) * scale && pos.y > rect.y * scale;
+}
+
+function switchCameras() {
+	if(amountOfCameras > 1) {
+		if (currentFacingMode === 'environment') currentFacingMode = 'user';
+		else currentFacingMode = 'environment';
+		initCameraStream();
+	}
+}
+
+function download(filename, content) {
+	var element = document.createElement('a');
+	element.setAttribute('href', content);
+	element.setAttribute('download', filename);
+
+	element.style.display = 'none';
+	document.body.appendChild(element);
+
+	element.click();
+
+	document.body.removeChild(element);
+}
+
+function getFileDate() {
+	let now = new Date();
+	// i love javascript
+	let dateString = now.getDate() + "-" + (now.getMonth()+1) + "-"+ now.getFullYear() + " " + now.getHours() + " " + now.getMinutes() + " " + now.getSeconds();
+	return dateString;
+}
+
+function savePicture() {
+	let ctx = cameraOutput.getContext("2d");
+	ctx.drawImage(cameraView, 0,0, cameraOutput.width, cameraOutput.height);
+	Filters.filterImage(Filters.paletteSwap, cameraOutput, [palettes[currentPalette]])
+	var dataURL = cameraOutput.toDataURL('image/png');
+	download("webgbcam " + getFileDate() + ".png", dataURL);
+}
+
+function loadPrefs() {
+	let localContrast = parseInt(localStorage.getItem("cameraContrast"));
+	let localGamma = parseInt(localStorage.getItem("cameraGamma"));
+	let localPalette = parseInt(localStorage.getItem("cameraPalette"));
+	let localSharpness = parseInt(localStorage.getItem("cameraSharpness"));
+	let localBpp = parseInt(localStorage.getItem("cameraBpp"));
+	cameraVars.contrast = (localContrast ? localContrast : 3);
+	cameraVars.gamma = (localGamma ? localGamma : 3);
+	cameraVars.sharpness = (localSharpness ? localSharpness : 3);
+	cameraVars.bppSwitch = (localBpp ? localBpp : 2);
+	outputScale = (cameraVars.bppSwitch == 2 ? 6 : 3);
+	currentPalette = (localPalette ? localPalette : 0);
+}
+
+function savePrefs() {
+	localStorage.setItem("cameraContrast", cameraVars.contrast);
+	localStorage.setItem("cameraGamma", cameraVars.gamma);
+	localStorage.setItem("cameraSharpness", cameraVars.sharpness);
+	localStorage.setItem("cameraBpp", cameraVars.bppSwitch);
+	localStorage.setItem("cameraPalette", currentPalette);
+}
+
+function bppSwitch() {
+	if (cameraVars.bppSwitch == 2) {
+		// to 1bpp
+		cameraVars.bppSwitch = 1;
+		cameraVars.width = 256;
+		cameraVars.height = 224;
+		outputScale = 3;
+	} else {
+		// to 2bpp
+		cameraVars.bppSwitch = 2;
+		cameraVars.width = 128;
+		cameraVars.height = 112;
+		outputScale = 6;
+	}
+	cameraView.width = cameraVars.width;
+	cameraView.height = cameraVars.height;
+	initCameraDrawing(false);
+}
 
 function applyLevels(value, brightness, contrast, gamma) {
 	let newValue = value / 255.0;
@@ -588,6 +780,23 @@ Filters.gbcamera = function(pixels, ditherFactor) {
 		}
 	}
 	
+	return pixels;
+}
+
+// thanks to https://beyondloom.com/blog/dither.html
+Filters.atkinson = function(pixels) {
+	let w = pixels.width;
+	let d = pixels.data;
+	const e=Array(2*w).fill(0), m=[0,1,w-2,w-1,w,2*w-1];
+	for (i = 0; i < d.length; i=i+4) {
+		let x = d[i]/256.0;
+		const pix=x+(e.push(0),e.shift()), col=pix>.5, err=(pix-col)/8;
+		m.forEach(x => e[x]+=err);
+		let c = col ? 255 : 0;
+		d[i] = c;
+		d[i+1] = c;
+		d[i+2] = c;
+	}
 	return pixels;
 }
 
@@ -698,7 +907,7 @@ window.onresize = restartCamera;
 
 function captureImage() {
 	cameraStream.pause();
-	currentUI = uiCapture;
+	currentUI = screens.uiCapture;
 }
 
 function initCameraUI() {
@@ -707,89 +916,18 @@ function initCameraUI() {
 	const queryString = window.location.search;
 	const urlParams = new URLSearchParams(queryString);
 	if (urlParams.has('hideui')) {
-		currentUI = uiHidden;
+		currentUI = screens.uiHidden;
 	}
 
 	// handle canvas app clicks
 	appView.addEventListener('click', function(e) {
 		var mousePos = getMousePos(appView, e);
 
-		// buttons in main screen
-		if(currentUI === uiMain) {
-			if(isInside(mousePos, buttons.bottomLeft) || isInside(mousePos, buttons.screenHotspot)) {
-				// shutter
-				captureImage();
-			} else if(isInside(mousePos, buttons.bottomRight)) {
-				// switch camera
-				switchCameras();
-			} else if(isInside(mousePos, buttons.topLeft)) {
-				// go to settings
-				currentUI = uiSettings;
-			} else if(isInside(mousePos, buttons.hideUI)) {
-				// hide UI buttons
-				currentUI = uiHidden;
-			} else if(isInside(mousePos, buttons.timer)) {
-				// change UI to timer and trigger 3s delay to capture
-				currentUI = uiTimer;
-				setTimeout(captureImage, 3000);
-			} else if(isInside(mousePos, buttons.record)) {
-				// start GIF recording
-				gifStart();
+		currentUI.buttons.forEach((button) => {
+			if (isInside(mousePos, button.bounding)) {
+				button.action();
 			}
-		} else if(currentUI === uiCapture) {
-			if(isInside(mousePos, buttons.bottomLeft)) {
-				// return
-				cameraStream.play();
-				currentUI = uiMain;
-			} else if(isInside(mousePos, buttons.bottomRight)) {
-				// save picture
-				savePicture();
-			} else if(isInside(mousePos, buttons.topLeft)) {
-				// go to settings
-				currentUI = uiSettings;
-			} 
-		} else if(currentUI === uiSettings) {
-			if(isInside(mousePos, buttons.bottomLeft)) {
-				// return
-				if(cameraStream.paused == true) {
-					// we're in capture
-					currentUI = uiCapture;
-				} else {
-					currentUI = uiMain;
-				}
-			} else if(isInside(mousePos, buttons.contrastLeft)) {
-				if(cameraVars.contrast > 0) cameraVars.contrast--;
-				savePrefs();
-			} else if(isInside(mousePos, buttons.contrastRight)) {
-				if(cameraVars.contrast < 6) cameraVars.contrast++;
-				savePrefs();
-			} else if(isInside(mousePos, buttons.brightnessLeft)) {
-				if(cameraVars.gamma > 0) cameraVars.gamma--;
-				savePrefs();
-			} else if(isInside(mousePos, buttons.brightnessRight)) {
-				if(cameraVars.gamma < 6) cameraVars.gamma++;
-				savePrefs();
-			} else if(isInside(mousePos, buttons.sharpnessLeft)) {
-				if(cameraVars.sharpness > 0) cameraVars.sharpness--;
-				savePrefs();
-			} else if(isInside(mousePos, buttons.sharpnessRight)) {
-				if(cameraVars.sharpness < 6) cameraVars.sharpness++;
-				savePrefs();
-			} else if(isInside(mousePos, buttons.paletteLeft)) {
-				currentPalette--;
-				if(currentPalette < 0) currentPalette = palettes.length-1;
-				savePrefs(); 
-			} else if(isInside(mousePos, buttons.paletteRight)) {
-				currentPalette++;
-				if(currentPalette >= palettes.length) currentPalette = 0;
-				savePrefs();
-			}
-		} else if(currentUI === uiHidden) {
-			if(isInside(mousePos, buttons.hideUI)) {
-				// go back to main
-				currentUI = uiMain;
-			}
-		}
+		});
 		
 	}, false);
 }
@@ -811,6 +949,11 @@ function initAppScaling() {
 	cameraView.height = cameraVars.height;
 	appView.width = renderWidth;
 	appView.height = renderHeight;
+
+	let ctx = appView.getContext("2d");
+	ctx.imageSmoothingEnabled = false;
+	ctx = cameraView.getContext("2d");
+	ctx.imageSmoothingEnabled = false;
 }
 
 // https://github.com/webrtc/samples/blob/gh-pages/src/content/devices/input-output/js/main.js
@@ -855,14 +998,14 @@ function initCameraStream() {
 		.catch(handleError);
 }
 
-function initCameraDrawing() {
+function initCameraDrawing(start = true) {
 	// if cameraStream has vertical or horizontal resolution of 0 then it's not initialized, we retry until the browser decides to properly work
 	if (cameraStream.videoHeight == 0) setTimeout(restartCamera, 500);
 
 	const track = window.stream.getVideoTracks()[0];
 	let settings = track.getSettings();
-	let str = JSON.stringify(settings, null, 4);
-	console.log('settings ' + str);
+	//let str = JSON.stringify(settings, null, 4);
+	//console.log('settings ' + str);
 
 	// calculate scale and offset to render camera stream to camera view canvas
 	if(cameraStream.videoWidth >= cameraStream.videoHeight) {
@@ -885,17 +1028,18 @@ function initCameraDrawing() {
 	} else {
 		cameraView.getContext('2d').setTransform(1, 0, 0, 1, 0, 0);
 	}
-	console.log(cameraVars);
+	//console.log(cameraVars);
 	
 	cameraOutput.width = cameraVars.width * outputScale;
 	cameraOutput.height = cameraVars.height * outputScale;
 	let ctx = cameraOutput.getContext("2d");
 	ctx.imageSmoothingEnabled = false;
 
-	cameraStream.play();
-	
-	clearInterval(frameDrawing)
-	frameDrawing = setInterval(drawFrame, 100);
+	if (start) {
+		cameraStream.play();
+		clearInterval(frameDrawing)
+		frameDrawing = setInterval(drawFrame, 100);
+	}
 }
 
 function showGifModal() {
@@ -934,13 +1078,13 @@ function gifStart() {
 		//download("webgbcam " + getFileDate() + ".gif", URL.createObjectURL(blob));
 	});
 	gifFrames = gifLength;
-	currentUI = uiRecord;
+	currentUI = screens.uiRecord;
 	gifRecording = true;
 }
 
 function gifEnd() {
 	gifRecording = false;
-	currentUI = uiMain;
+	currentUI = screens.uiMain;
 	gifEncoder.render();
 	showGifModal();
 }
@@ -953,34 +1097,51 @@ function gifFrame() {
 	if(--gifFrames == 0) gifEnd();
 }
 
+function scaledFillRect(ctx, x, y, width, height) {
+	const scale = 2;
+	ctx.fillRect(x * scale, y * scale, width * scale, height * scale);
+}
+
 function drawFrame() {
 	let camctx = cameraView.getContext('2d');
 	camctx.drawImage(cameraStream, cameraVars.xOffset, cameraVars.yOffset, cameraVars.xScale, cameraVars.yScale, 0, 0, cameraVars.width, cameraVars.height);
 	
 	Filters.filterImage(Filters.grayscale, cameraView, []);
 	Filters.filterImage(Filters.sharpen, cameraView, [sliderSharpness[cameraVars.sharpness]]);
-	Filters.filterImage(Filters.gbcamera, cameraView, [cameraVars.dither]);
+	
+	if (cameraVars.bppSwitch == 2) {
+		Filters.filterImage(Filters.gbcamera, cameraView, [cameraVars.dither]);
+	} else {
+		Filters.filterImage(Filters.atkinson, cameraView, []);
+	}
 	
 	let ctx = appView.getContext("2d");
-	ctx.drawImage(cameraView, 16, 16);
-	ctx.drawImage(currentUI, 0, 0);
+	ctx.drawImage(cameraView, 32, 32, 256, 224);
+	ctx.drawImage(currentUI.elem, 0, 0, 160, 144, 0, 0, 320, 288);
 
-	if (currentUI === uiSettings) {
+	if (currentUI === screens.uiSettings) {
 		// update settings values	
 		ctx.fillStyle = "rgb(192,192,192)";
 		for(let i = 1; i <= cameraVars.contrast; i++) {
-			ctx.fillRect(42, 22 - (i*3), 4, 2);
+			scaledFillRect(ctx, 42, 22 - (i*3), 4, 2);
 		}
 		for(let i = 1; i <= cameraVars.gamma; i++) {
-			ctx.fillRect(97, 22 - (i*3), 4, 2);
+			scaledFillRect(ctx, 97, 22 - (i*3), 4, 2);
 		}
 		for(let i = 1; i <= cameraVars.sharpness; i++) {
-			ctx.fillRect(152, 135 - (i*3), 4, 2);
+			scaledFillRect(ctx, 152, 135 - (i*3), 4, 2);
 		}
-	} else if (currentUI === uiRecord) {
+		
+		ctx.fillStyle = "rgb(130,130,130)";
+		if (cameraVars.bppSwitch == 2) {
+			scaledFillRect(ctx, 70, 135, 4, 4);
+		} else {
+			scaledFillRect(ctx, 65, 135, 4, 4);
+		}
+	} else if (currentUI === screens.uiRecord) {
 		// update record length
 		ctx.fillStyle = "rgb(64,64,64)";
-		ctx.fillRect(25, 134, 110 - (gifFrames / gifLength * 110), 6);
+		scaledFillRect(ctx, 25, 134, 110 - (gifFrames / gifLength * 110), 6);
 	}
 
 	try {
