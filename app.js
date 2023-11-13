@@ -536,7 +536,9 @@ var screens = {
 			},
 			{
 				bounding: buttons.bppSwitch,
-				action: bppSwitch
+				action: ()=> {
+					updateBpp(cameraVars.bppSwitch == 2 ? 1 : 2);
+				}
 			}
 		]
 	},
@@ -656,7 +658,7 @@ function loadPrefs() {
 	cameraVars.contrast = (localContrast ? localContrast : 3);
 	cameraVars.gamma = (localGamma ? localGamma : 3);
 	cameraVars.sharpness = (localSharpness ? localSharpness : 3);
-	cameraVars.bppSwitch = (localBpp ? localBpp : 2);
+	updateBpp(localBpp ? localBpp : 2);
 	outputScale = (cameraVars.bppSwitch == 2 ? 6 : 3);
 	currentPalette = (localPalette ? localPalette : 0);
 }
@@ -669,8 +671,8 @@ function savePrefs() {
 	localStorage.setItem("cameraPalette", currentPalette);
 }
 
-function bppSwitch() {
-	if (cameraVars.bppSwitch == 2) {
+function updateBpp(bpp = 2) {
+	if (bpp == 1) {
 		// to 1bpp
 		cameraVars.bppSwitch = 1;
 		cameraVars.width = 256;
