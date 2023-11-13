@@ -1,4 +1,4 @@
-const cacheName = 'webgbcam-v4.2'
+const cacheName = 'webgbcam-v4.3'
 
 // Install a service worker
 self.addEventListener("install", (event) => {

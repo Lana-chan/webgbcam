@@ -14,22 +14,24 @@
 	<meta property="og:url" content="https://maple.pet/webgbcam/">
 </head>
 <body>
-	<div class="maple-window">
-		<div class="maple-window-title"><span>webgbcam v4.2</span></div>
+	<div id="main-app-window" class="maple-window centered">
+		<div class="maple-window-title"><span>webgbcam v4.3</span></div>
 		<div id="camera">
 			<canvas id="app-view"></canvas>
 			<canvas id="camera-view"></canvas>
 			<canvas id="camera-output"></canvas>
 			<video id="camera-stream" autoplay playsinline></video>
-		</div>
-	</div><br />
+		</div><br/>
+		<button id="button-about" onclick="toggleAbout();">about</button>
+	</div>
 
-	<div class="maple-window centered">
+	<div id="about" class="maple-window centered modal hidden">
+		<div class="maple-window-title"><span>about</span></div>
 		<h2 class="blink">NFTs: No Fucking Thanks</h2>
 
 		<p>made by <a href="https://maple.pet">maple</a> - inspired by christine love's interstellar selfie station</p>
 
-		<p>if the app above is blank, make sure you have cameras connected and browser camera permissions enabled!</p>
+		<p>if the app is blank, make sure you have cameras connected and browser camera permissions enabled!</p>
 
 		<p>webgbcam uses <a href="https://github.com/jnordberg/gif.js">gif.js</a><br/>
 		you can check the source code on <a href="https://github.com/Lana-chan/webgbcam">github</a>!</p>
@@ -42,9 +44,11 @@
 			</ul>
 		</p>
 
-		<p>if you like the stuff i do, check out <a href="https://maple.pet/">my website</a> or <a href="https://ko-fi.com/squirrel">donate to me on ko-fi</a>!</p>
+		<p>if you like the stuff i do, check out <a href="https://maple.pet/">my website</a> and please <a href="https://ko-fi.com/squirrel">donate to me on ko-fi</a>!</p>
 
 		<p>ps: you look great today!</p>
+
+		<button id="button-close" onclick="toggleAbout();">close</button>
 	</div>
 
 	<div id="gif-preview" class="maple-window modal hidden">

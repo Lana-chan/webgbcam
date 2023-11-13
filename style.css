@@ -20,7 +20,7 @@ body {
   margin: 5px;
   vertical-align: top;
 	display: inline-block;
-	border-width: 35px 20px 20px 20px;
+	border-width: 26px 12px 20px 12px;
 	border-style: solid;
 	border-image: url("ui/mac-frame.png") 30 40 22 22 fill repeat;
 	border-image-width: 30px 40px 22px 22px;
@@ -30,6 +30,7 @@ body {
 	font-size: 12px;
 	font-family: geneva, sans-serif;
 	min-width: 200px;
+	box-sizing: border-box;
 }
 
 .maple-window a {
@@ -42,7 +43,7 @@ body {
 
 .maple-window-title {
   position: absolute;
-  top: -31px;
+  top: -23px;
   text-align: center;
   width: 100%;
   left: 0;
@@ -69,12 +70,10 @@ body {
 #app-view {
 	height: 100%;
 	width: 100%;
-	image-rendering: optimizeSpeed;             /* Older versions of FF          */
-	image-rendering: -moz-crisp-edges;          /* FF 6.0+                       */
-	image-rendering: -webkit-optimize-contrast; /* Safari                        */
-	image-rendering: -o-crisp-edges;            /* OS X & Windows Opera (12.02+) */
-	image-rendering: pixelated;                 /* Awesome future-browsers       */
-	-ms-interpolation-mode: nearest-neighbor;   /* IE                            */
+	/*image-rendering: -moz-crisp-edges;
+	image-rendering: -webkit-optimize-contrast;
+	image-rendering: -o-crisp-edges;
+	image-rendering: crisp-edges;*/
 }
 
 #camera-stream, #camera-output, #camera-view, .hidden {
@@ -139,4 +138,29 @@ ul {
 	margin-top: -1em;
 	padding: 0;
 	list-style: none;
+}
+
+#main-app-window {
+	width: 98%;
+	top: 48%;
+  transform: translateY(-50%);
+}
+
+#camera {
+	display: inline-block;
+	width: 100%;
+}
+
+@media (orientation:landscape)  {
+	#main-app-window {
+		width: unset;
+		height: 98%;
+		top: unset;
+		transform: unset;
+	}
+
+	#camera {
+		width: unset;
+		height: calc(100% - 2rem);
+	}
 }
