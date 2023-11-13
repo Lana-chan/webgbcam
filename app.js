@@ -243,6 +243,7 @@ var amountOfCameras = 0;
 var currentFacingMode = 'user';
 var appScale;
 var frameDrawing;
+var resizeTimeout;
 const gifLength = 50;
 var outputScale = 6;
 var gifRecording,
@@ -535,7 +536,9 @@ var screens = {
 			},
 			{
 				bounding: buttons.bppSwitch,
-				action: bppSwitch
+				action: ()=> {
+					updateBpp(cameraVars.bppSwitch == 2 ? 1 : 2);
+				}
 			}
 		]
 	},
@@ -598,16 +601,16 @@ function screenIsPortrait() {
 
 //Function to get the mouse position
 function getMousePos(canvas, event) {
-	var rect = canvas.getBoundingClientRect();
-	return {
-			x: (event.clientX - rect.left) / appScale,
-			y: (event.clientY - rect.top) / appScale
+	let rect = canvas.getBoundingClientRect();
+	let mousePos = {
+			x: (event.clientX - rect.left) / (rect.right - rect.left) * renderWidth / 2,
+			y: (event.clientY - rect.top) / (rect.bottom - rect.top) * renderHeight / 2
 	};
+	return mousePos; 
 }
 //Function to check whether a point is inside a rectangle
 function isInside(pos, rect){
-	const scale = 2;
-	return pos.x > rect.x * scale && pos.x < (rect.x+rect.width) * scale && pos.y < (rect.y+rect.height) * scale && pos.y > rect.y * scale;
+	return pos.x > rect.x && pos.x < (rect.x+rect.width) && pos.y < (rect.y+rect.height) && pos.y > rect.y;
 }
 
 function switchCameras() {
@@ -655,7 +658,7 @@ function loadPrefs() {
 	cameraVars.contrast = (localContrast ? localContrast : 3);
 	cameraVars.gamma = (localGamma ? localGamma : 3);
 	cameraVars.sharpness = (localSharpness ? localSharpness : 3);
-	cameraVars.bppSwitch = (localBpp ? localBpp : 2);
+	updateBpp(localBpp ? localBpp : 2);
 	outputScale = (cameraVars.bppSwitch == 2 ? 6 : 3);
 	currentPalette = (localPalette ? localPalette : 0);
 }
@@ -668,8 +671,8 @@ function savePrefs() {
 	localStorage.setItem("cameraPalette", currentPalette);
 }
 
-function bppSwitch() {
-	if (cameraVars.bppSwitch == 2) {
+function updateBpp(bpp = 2) {
+	if (bpp == 1) {
 		// to 1bpp
 		cameraVars.bppSwitch = 1;
 		cameraVars.width = 256;
@@ -896,14 +899,15 @@ document.addEventListener('DOMContentLoaded', function (event) {
 });
 
 function restartCamera() {
-	setTimeout(function() {
+	clearTimeout(resizeTimeout);
+	resizeTimeout = setTimeout(function() {
 		initAppScaling();
 		initCameraDrawing();
 	}, 300);
 }
 
-window.onorientationchange = restartCamera;
-window.onresize = restartCamera;
+//window.onorientationchange = restartCamera;
+//window.onresize = restartCamera;
 
 function captureImage() {
 	cameraStream.pause();
@@ -932,26 +936,18 @@ function initCameraUI() {
 	}, false);
 }
 
-function initAppScaling() {
-	// figure out max integer render scale for window
-	if(window.innerWidth >= window.innerHeight) {
-		// horizontal
-		appScale = Math.floor(window.innerHeight / renderHeight);
-	} else {
-		// vertical
-		appScale = Math.floor(window.innerWidth / renderWidth);
-	}
-	cameraDiv.style.width = appScale * renderWidth + "px";
-	cameraDiv.style.height = appScale * renderHeight + "px";
+function initAppScaling(scale = 2) {
+	appScale = scale;
 
 	// canvas sizes
 	cameraView.width = cameraVars.width;
 	cameraView.height = cameraVars.height;
-	appView.width = renderWidth;
-	appView.height = renderHeight;
-
+	appView.width = renderWidth * appScale;
+	appView.height = renderHeight * appScale;
+	
 	let ctx = appView.getContext("2d");
 	ctx.imageSmoothingEnabled = false;
+	ctx.scale(appScale,appScale);
 	ctx = cameraView.getContext("2d");
 	ctx.imageSmoothingEnabled = false;
 }
@@ -1150,4 +1146,14 @@ function drawFrame() {
 
 	}
 	if (gifRecording) gifFrame();
+}
+
+function toggleAbout() {
+	const elemAbout = document.getElementById("about");
+
+	if (elemAbout.classList.contains("hidden")) {
+		elemAbout.classList.remove("hidden");
+	} else {
+		elemAbout.classList.add("hidden");
+	}
 }
