@@ -621,17 +621,14 @@ function switchCameras() {
 	}
 }
 
-function download(filename, content) {
-	var element = document.createElement('a');
-	element.setAttribute('href', content);
-	element.setAttribute('download', filename);
-
-	element.style.display = 'none';
-	document.body.appendChild(element);
-
-	element.click();
-
-	document.body.removeChild(element);
+function download(filename, blob) {
+	var link = document.createElement('a');
+	link.href = URL.createObjectURL(blob);
+	link.download = filename;
+	link.style.display = 'none';
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);
 }
 
 function getFileDate() {
@@ -645,8 +642,9 @@ function savePicture() {
 	let ctx = cameraOutput.getContext("2d");
 	ctx.drawImage(cameraView, 0,0, cameraOutput.width, cameraOutput.height);
 	Filters.filterImage(Filters.paletteSwap, cameraOutput, [palettes[currentPalette]])
-	var dataURL = cameraOutput.toDataURL('image/png');
-	download("webgbcam " + getFileDate() + ".png", dataURL);
+	cameraOutput.toBlob((blob) => {
+		download("webgbcam " + getFileDate() + ".png", blob);
+	}, 'image/png');
 }
 
 function loadPrefs() {
@@ -1049,7 +1047,7 @@ function loadGifModal(blob) {
 }
 
 function downloadGif() {
-	download("webgbcam " + getFileDate() + ".gif", URL.createObjectURL(gifBlob));
+	download("webgbcam " + getFileDate() + ".gif", gifBlob);
 	resetGifModal();
 }
 
